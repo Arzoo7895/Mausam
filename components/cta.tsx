@@ -1,11 +1,13 @@
 'use client'
 
 import { ArrowRight, Check } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { type FormEvent, useState } from 'react'
 import { Reveal } from '@/components/reveal'
 import { Button } from '@/components/ui/button'
 
 export function Cta() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'error' | 'done'>('idle')
 
@@ -17,6 +19,8 @@ export function Cta() {
       return
     }
     setStatus('done')
+    // Carry the email into the real sign-up flow so the user keeps momentum.
+    router.push(`/auth/sign-up?email=${encodeURIComponent(email)}`)
   }
 
   return (

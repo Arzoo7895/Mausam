@@ -30,7 +30,7 @@ export default async function StatusPage() {
       <SiteHeader />
       <main id="main" className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <Breadcrumb
-          items={[{ label: 'Help Center', href: '/' }, { label: 'System status' }]}
+          items={[{ label: 'Help Center', href: '/help-center' }, { label: 'System status' }]}
         />
 
         <div

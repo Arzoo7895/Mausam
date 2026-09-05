@@ -21,7 +21,7 @@ export function SiteFooter() {
               {categories.slice(0, 5).map((c) => (
                 <li key={c.slug}>
                   <Link
-                    href={`/categories/${c.slug}`}
+                    href={`/help-center/categories/${c.slug}`}
                     className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {c.title}
@@ -36,7 +36,7 @@ export function SiteFooter() {
             <ul className="mt-3 space-y-2">
               <li>
                 <Link
-                  href="/contact"
+                  href="/help-center/contact"
                   className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   Contact support
@@ -44,7 +44,7 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link
-                  href="/status"
+                  href="/help-center/status"
                   className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   System status
@@ -52,7 +52,7 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link
-                  href="/categories/privacy-security"
+                  href="/help-center/categories/privacy-security"
                   className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   Privacy &amp; security

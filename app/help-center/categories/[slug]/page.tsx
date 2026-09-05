@@ -47,7 +47,7 @@ export default async function CategoryPage({
       <main id="main" className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         <Breadcrumb
           items={[
-            { label: 'Help Center', href: '/' },
+            { label: 'Help Center', href: '/help-center' },
             { label: category.title },
           ]}
         />
@@ -70,7 +70,7 @@ export default async function CategoryPage({
           {list.map((a) => (
             <Link
               key={a.slug}
-              href={`/articles/${a.slug}`}
+              href={`/help-center/articles/${a.slug}`}
               className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card px-5 py-4 transition-all hover:border-primary/40 hover:shadow-sm"
             >
               <div className="min-w-0">
@@ -99,7 +99,7 @@ export default async function CategoryPage({
               .map((c) => (
                 <Link
                   key={c.slug}
-                  href={`/categories/${c.slug}`}
+                  href={`/help-center/categories/${c.slug}`}
                   className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                 >
                   <CategoryIcon name={c.icon} className="size-4" />

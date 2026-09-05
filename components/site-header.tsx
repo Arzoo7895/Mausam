@@ -73,7 +73,7 @@ export function SiteHeader() {
               size="sm"
               nativeButton={false}
               className="hidden sm:inline-flex"
-              render={<a href="#get-started" />}
+              render={<a href="/auth/sign-up" />}
             >
               Get Started
             </Button>
@@ -114,7 +114,7 @@ export function SiteHeader() {
               <Button
                 className="mt-1 w-full"
                 nativeButton={false}
-                render={<a href="#get-started" onClick={() => setOpen(false)} />}
+                render={<a href="/auth/sign-up" onClick={() => setOpen(false)} />}
               >
                 Get Started
               </Button>

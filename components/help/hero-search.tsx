@@ -34,7 +34,7 @@ export function HeroSearch() {
   }, [])
 
   function go(slug: string) {
-    router.push(`/articles/${slug}`)
+    router.push(`/help-center/articles/${slug}`)
   }
 
   function onKey(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -79,7 +79,7 @@ export function HeroSearch() {
           {results.length === 0 ? (
             <p className="px-3 py-6 text-center text-sm text-muted-foreground">
               No matches. Try another term or{' '}
-              <a href="/contact" className="text-primary underline-offset-4 hover:underline">
+              <a href="/help-center/contact" className="text-primary underline-offset-4 hover:underline">
                 contact support
               </a>
               .
