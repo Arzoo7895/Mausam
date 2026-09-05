@@ -71,9 +71,18 @@ export function SiteHeader() {
             <ThemeToggle />
             <Button
               size="sm"
+              variant="ghost"
               nativeButton={false}
               className="hidden sm:inline-flex"
-              render={<a href="#get-started" />}
+              render={<a href="/login" />}
+            >
+              Sign in
+            </Button>
+            <Button
+              size="sm"
+              nativeButton={false}
+              className="hidden sm:inline-flex"
+              render={<a href="/auth/sign-up" />}
             >
               Get Started
             </Button>
@@ -112,9 +121,17 @@ export function SiteHeader() {
                 </a>
               ))}
               <Button
+                variant="outline"
                 className="mt-1 w-full"
                 nativeButton={false}
-                render={<a href="#get-started" onClick={() => setOpen(false)} />}
+                render={<a href="/login" onClick={() => setOpen(false)} />}
+              >
+                Sign in
+              </Button>
+              <Button
+                className="w-full"
+                nativeButton={false}
+                render={<a href="/auth/sign-up" onClick={() => setOpen(false)} />}
               >
                 Get Started
               </Button>

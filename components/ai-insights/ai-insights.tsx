@@ -31,10 +31,10 @@ export function AiInsights() {
             <Link href="/alerts" className="mb-1 inline-flex items-center gap-1 text-xs font-medium text-slate-500 transition hover:text-slate-900">
               <ChevronLeft size={14} /> Back to alerts
             </Link>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Mausam AI</p>
+            <Link href="/dashboard" className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400 transition hover:text-slate-600">Mausam AI</Link>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight">AI Weather Insight</h1>
           </div>
-          <div className="grid size-9 place-items-center rounded-full bg-slate-900 text-sm font-semibold text-white">MA</div>
+          <Link href="/user-profile-and-setting" aria-label="Account and settings" className="grid size-9 place-items-center rounded-full bg-slate-900 text-sm font-semibold text-white transition hover:bg-slate-700">MA</Link>
         </div>
       </header>
 

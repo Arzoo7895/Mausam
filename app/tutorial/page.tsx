@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronRight, CloudSun, Compass, Search, Sparkles, Sun, Wind } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -50,8 +51,8 @@ export default function Page() {
   return <main className="min-h-screen bg-background text-foreground">
     <header className="border-b border-border bg-background/95">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
-        <div className="flex items-center gap-8"><a href="#top" className="flex items-center gap-2 font-semibold tracking-tight"><span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><CloudSun className="size-4" aria-hidden="true" /></span>Mausam AI</a><nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex"><a className="text-foreground" href="#lesson">Learning center</a><a href="#reference" className="hover:text-foreground">Quick reference</a></nav></div>
-        <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="Search"><Search aria-hidden="true" /></Button><Button variant="outline" size="sm">My learning <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-xs">3</span></Button><div className="flex size-8 items-center justify-center rounded-full bg-muted text-sm font-medium" aria-label="Profile">A</div></div>
+        <div className="flex items-center gap-8"><Link href="/dashboard" className="flex items-center gap-2 font-semibold tracking-tight"><span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><CloudSun className="size-4" aria-hidden="true" /></span>Mausam AI</Link><nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex"><a className="text-foreground" href="#lesson">Learning center</a><a href="#reference" className="hover:text-foreground">Quick reference</a></nav></div>
+        <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="Search"><Search aria-hidden="true" /></Button><Button variant="outline" size="sm">My learning <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-xs">3</span></Button><Link href="/user-profile-and-setting" className="flex size-8 items-center justify-center rounded-full bg-muted text-sm font-medium" aria-label="Profile">A</Link></div>
       </div>
     </header>
     <div id="top" className="border-b border-border"><div className="mx-auto flex max-w-7xl items-center gap-2 px-5 py-3 text-xs text-muted-foreground lg:px-8"><a href="#lesson" className="hover:text-foreground">Learning center</a><ChevronRight className="size-3" aria-hidden="true" /><span>Weather fundamentals</span><ChevronRight className="size-3" aria-hidden="true" /><span className="text-foreground">Reading a forecast</span></div></div>
