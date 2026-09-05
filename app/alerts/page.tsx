@@ -7,6 +7,8 @@ export const metadata = {
 }
 
 export default async function AlertsPage() {
+  // Seed with the default location for SSR; the client hydrates the feed with
+  // the user's stored selected location.
   const [alerts, settings] = await Promise.all([getAlerts(), getNotificationSettings()])
   return <AlertsDashboard initialAlerts={alerts} initialSettings={settings} />
 }

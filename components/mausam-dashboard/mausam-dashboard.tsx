@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { motion } from 'motion/react'
 import  AIDailyBrief  from '@/components/ai-daily-brief/ai-daily-brief'
+import { getStoredLocation, setStoredLocation } from '@/lib/location'
 import {
   ArrowUpRight, Bell, CalendarDays, ChevronDown, CloudRain, Droplets, Eye,
   Gauge, Leaf, LocateFixed, MapPin, Menu, Moon, MoreHorizontal, Navigation,
@@ -36,6 +37,19 @@ export default function MausamDashboard() {
   const [location, setLocation] = useState('New Delhi')
   const [saved, setSaved] = useState(['New Delhi', 'Bengaluru', 'Mumbai'])
   const [alert, setAlert] = useState(true)
+
+  // Load any previously selected location so the whole app (alerts, insights)
+  // stays in sync with the user's choice.
+  useEffect(() => {
+    setLocation(getStoredLocation())
+  }, [])
+
+  // Select + persist a location so the Alerts and AI Insight pages are
+  // location-aware instead of showing unrelated places.
+  const selectLocation = (city: string) => {
+    setLocation(city)
+    setStoredLocation(city)
+  }
 
   return (
     <div className={dark ? 'dark min-h-screen' : 'min-h-screen'}>
@@ -85,7 +99,7 @@ export default function MausamDashboard() {
 
           <div className="mt-5 grid gap-5 md:grid-cols-3"><Card className="p-5"><div className="flex items-center gap-3"><div className="rounded-lg bg-primary/10 p-2 text-primary"><Umbrella size={17}/></div><div><h3 className="text-sm font-semibold">Commute window</h3><p className="text-xs text-muted-foreground">Best time to head out</p></div></div><p className="mt-4 text-2xl font-semibold">Now – 3 PM</p><p className="mt-1 text-xs text-muted-foreground">Low chance of rain · Clear roads</p></Card><Card className="p-5"><div className="flex items-center gap-3"><div className="rounded-lg bg-primary/10 p-2 text-primary"><Leaf size={17}/></div><div><h3 className="text-sm font-semibold">Outdoor score</h3><p className="text-xs text-muted-foreground">Great for a walk</p></div></div><p className="mt-4 text-2xl font-semibold">8.4 <span className="text-sm font-normal text-muted-foreground">/ 10</span></p><p className="mt-1 text-xs text-muted-foreground">Take sunscreen and water</p></Card><Card className="p-5"><div className="flex items-center gap-3"><div className="rounded-lg bg-primary/10 p-2 text-primary"><Sunrise size={17}/></div><div><h3 className="text-sm font-semibold">Sunrise & sunset</h3><p className="text-xs text-muted-foreground">Daylight duration</p></div></div><p className="mt-4 text-2xl font-semibold">5:59 <span className="text-sm font-normal text-muted-foreground">AM</span></p><p className="mt-1 text-xs text-muted-foreground">Sunset 6:39 PM · 12h 40m day</p></Card></div>
 
-          <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr]"><Card className="p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold">Saved locations</h2><p className="mt-1 text-xs text-muted-foreground">Your cities at a glance</p></div><button aria-label="Add saved location" onClick={() => setSaved([...saved, 'Kolkata'])} className="rounded-lg p-2 text-primary hover:bg-muted"><Plus size={17}/></button></div><div className="mt-4 flex flex-wrap gap-2">{saved.map((city, i) => <button key={`${city}-${i}`} onClick={() => setLocation(city)} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-colors ${location === city ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}><MapPin size={14}/>{city}<span className="text-xs text-muted-foreground">{i === 0 ? '28°' : i === 1 ? '24°' : '30°'}</span></button>)}</div></Card><Card className="p-6"><div><h2 className="font-semibold">Quick actions</h2><p className="mt-1 text-xs text-muted-foreground">Make your forecast work for you</p></div><div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4"><button className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><CalendarDays size={18} className="text-primary"/> Plan trip</button><button className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><Bell size={18} className="text-primary"/> Set alert</button><button className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><Thermometer size={18} className="text-primary"/> Compare</button><button className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><Wind size={18} className="text-primary"/> Air quality</button></div></Card></div>
+          <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr]"><Card className="p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold">Saved locations</h2><p className="mt-1 text-xs text-muted-foreground">Your cities at a glance</p></div><button aria-label="Add saved location" onClick={() => setSaved([...saved, 'Kolkata'])} className="rounded-lg p-2 text-primary hover:bg-muted"><Plus size={17}/></button></div><div className="mt-4 flex flex-wrap gap-2">{saved.map((city, i) => <button key={`${city}-${i}`} onClick={() => selectLocation(city)} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-colors ${location === city ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}><MapPin size={14}/>{city}<span className="text-xs text-muted-foreground">{i === 0 ? '28°' : i === 1 ? '24°' : '30°'}</span></button>)}</div></Card><Card className="p-6"><div><h2 className="font-semibold">Quick actions</h2><p className="mt-1 text-xs text-muted-foreground">Make your forecast work for you</p></div><div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4"><button className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><CalendarDays size={18} className="text-primary"/> Plan trip</button><button className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><Bell size={18} className="text-primary"/> Set alert</button><button className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><Thermometer size={18} className="text-primary"/> Compare</button><button className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><Wind size={18} className="text-primary"/> Air quality</button></div></Card></div>
 
           <div className="mt-8 flex flex-col gap-3 border-t border-border pt-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><p>Data from Open-Meteo · Location services enabled</p><div className="flex items-center gap-4"><button className="hover:text-foreground"><Settings2 size={13} className="mr-1 inline"/> Preferences</button><button className="hover:text-foreground">Privacy</button></div></div>
         </div>

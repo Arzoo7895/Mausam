@@ -6,9 +6,17 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  // Supabase may not be configured yet (e.g. in preview). Without these env
+  // vars, skip session handling so pages still render instead of 500-ing.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return supabaseResponse
+  }
+
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
-  const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     // Secure cookies in production; not in dev, so localhost still works.
     cookieOptions: { secure: process.env.NODE_ENV === "production" },
     cookies: {
