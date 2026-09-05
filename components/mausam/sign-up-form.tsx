@@ -201,7 +201,7 @@ export function SignUpForm() {
                 render={({ field }) => (
                   <Checkbox
                     id="terms"
-                    checked={field.value}
+                    checked={!!field.value}
                     onCheckedChange={field.onChange}
                     aria-invalid={!!errors.terms}
                     aria-describedby={errors.terms ? "terms-error" : undefined}

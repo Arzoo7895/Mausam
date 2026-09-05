@@ -104,7 +104,7 @@ export default async function ArticlePage({
               <h2 className="font-display text-xl font-semibold tracking-tight text-foreground">
                 Related FAQs
               </h2>
-              <Accordion type="single" collapsible className="mt-3">
+              <Accordion multiple={false} className="mt-3">
                 {article.faqs.map((faq, i) => (
                   <AccordionItem key={i} value={`faq-${i}`}>
                     <AccordionTrigger className="text-left text-[15px] font-medium">

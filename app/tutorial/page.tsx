@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronRight, CloudSun, Compass, Search, Sparkles, Sun, Wind } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronRight, CloudSun, Compass, Home, Search, Sparkles, Sun, Wind } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const steps = [
@@ -12,17 +13,17 @@ const steps = [
 
 function WeatherWidget() {
   return (
-    <div className="rounded-xl border border-border bg-muted/50 p-5" aria-label="Current weather in San Francisco">
+    <div className="rounded-xl border border-border bg-muted/50 p-5" aria-label="Current weather in Bengaluru">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-muted-foreground">San Francisco, CA</p>
-          <div className="mt-2 flex items-center gap-3"><Sun className="size-8 text-primary" aria-hidden="true" /><span className="text-4xl font-semibold tracking-tight">64°</span></div>
-          <p className="mt-1 text-sm text-muted-foreground">Partly cloudy · Feels like 63°</p>
+          <p className="text-sm font-medium text-muted-foreground">Bengaluru, Karnataka</p>
+          <div className="mt-2 flex items-center gap-3"><Sun className="size-8 text-primary" aria-hidden="true" /><span className="text-4xl font-semibold tracking-tight">24°</span></div>
+          <p className="mt-1 text-sm text-muted-foreground">Partly cloudy · Feels like 25°</p>
         </div>
         <div className="flex flex-col items-end gap-2 text-right text-xs text-muted-foreground"><span>Updated just now</span><span className="rounded-full bg-background px-2 py-1 text-foreground">Good visibility</span></div>
       </div>
       <div className="mt-5 grid grid-cols-3 gap-3 border-t border-border pt-4 text-sm">
-        <div><p className="text-muted-foreground">Wind</p><p className="mt-1 flex items-center gap-1 font-medium"><Wind className="size-3.5" aria-hidden="true" /> 8 mph</p></div>
+        <div><p className="text-muted-foreground">Wind</p><p className="mt-1 flex items-center gap-1 font-medium"><Wind className="size-3.5" aria-hidden="true" /> 11 km/h</p></div>
         <div><p className="text-muted-foreground">Humidity</p><p className="mt-1 font-medium">68%</p></div>
         <div><p className="text-muted-foreground">Rain chance</p><p className="mt-1 font-medium">10%</p></div>
       </div>

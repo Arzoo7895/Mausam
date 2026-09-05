@@ -22,7 +22,7 @@ export const signUpSchema = z
     password: passwordSchema,
     confirmPassword: z.string().min(1, "Please confirm your password"),
     terms: z.literal(true, {
-      errorMap: () => ({ message: "You must accept the terms to continue" }),
+      message: "You must accept the terms to continue",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
