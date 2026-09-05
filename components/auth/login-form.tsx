@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { SocialAuth } from "@/components/mausam/social-auth"
 
 export function LoginForm() {
   const router = useRouter()
@@ -47,6 +48,14 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+      <SocialAuth onError={setError} />
+
+      <div className="flex items-center gap-3">
+        <span className="h-px flex-1 bg-border" />
+        <span className="text-xs uppercase tracking-wider text-muted-foreground">or</span>
+        <span className="h-px flex-1 bg-border" />
+      </div>
+
       {error && (
         <div
           role="alert"

@@ -11,26 +11,38 @@ export function SocialAuth({ onError }: { onError?: (message: string) => void })
   const [pending, setPending] = useState<Provider | null>(null)
 
   async function signInWith(provider: Provider) {
+    const label = provider === "google" ? "Google" : "GitHub"
     setPending(provider)
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOAuth({
+      // skipBrowserRedirect lets us verify the provider is actually enabled
+      // before navigating away — otherwise Supabase's authorize endpoint would
+      // render a raw JSON error page for an unconfigured provider.
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
+          skipBrowserRedirect: true,
           redirectTo:
             process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? `${window.location.origin}/auth/callback`,
         },
       })
       if (error) throw error
-      // On success the browser is redirected to the provider, so we keep the
-      // pending state until navigation happens.
-    } catch (err) {
+      if (!data?.url) throw new Error("missing authorize url")
+
+      // Probe the authorize URL: an enabled provider answers with a redirect
+      // (opaque to the browser), a disabled one answers with a 400 JSON body.
+      const probe = await fetch(data.url, { method: "GET", redirect: "manual" })
+      if (probe.type === "opaqueredirect" || probe.status === 0 || probe.ok) {
+        window.location.href = data.url
+        return
+      }
+
       setPending(null)
-      onError?.(
-        err instanceof Error
-          ? `Could not connect to ${provider}. Please try again.`
-          : "Something went wrong. Please try again.",
-      )
+      onError?.(`${label} sign-in isn't available right now. Please continue with your email and password.`)
+    } catch {
+      // Network error or blocked probe — degrade gracefully to email/password.
+      setPending(null)
+      onError?.(`${label} sign-in isn't available right now. Please continue with your email and password.`)
     }
   }
 
