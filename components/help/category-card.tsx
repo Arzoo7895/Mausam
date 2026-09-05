@@ -8,7 +8,7 @@ export function CategoryCard({ category }: { category: Category }) {
 
   return (
     <Link
-      href={`/categories/${category.slug}`}
+      href={`/help-center/categories/${category.slug}`}
       className="group relative flex flex-col rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
     >
       <div className="flex items-center justify-between">

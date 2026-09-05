@@ -23,26 +23,31 @@ export function LoginForm() {
     setError(null)
     setLoading(true)
 
-    const supabase = createClient()
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+    try {
+      const supabase = createClient()
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (signInError) {
-      setLoading(false)
-      // Genericize the credential/existence signal, but surface actionable states.
-      if (signInError.message.toLowerCase().includes("email not confirmed")) {
-        setError("Please confirm your email address before signing in. Check your inbox for the link.")
-      } else if (signInError.status === 429) {
-        setError("Too many attempts. Please wait a moment and try again.")
-      } else if (signInError.message.toLowerCase().includes("invalid")) {
-        setError("Invalid email or password.")
-      } else {
-        setError("Something went wrong. Please try again.")
+      if (signInError) {
+        setLoading(false)
+        // Genericize the credential/existence signal, but surface actionable states.
+        if (signInError.message.toLowerCase().includes("email not confirmed")) {
+          setError("Please confirm your email address before signing in. Check your inbox for the link.")
+        } else if (signInError.status === 429) {
+          setError("Too many attempts. Please wait a moment and try again.")
+        } else if (signInError.message.toLowerCase().includes("invalid")) {
+          setError("Invalid email or password.")
+        } else {
+          setError("Something went wrong. Please try again.")
+        }
+        return
       }
-      return
-    }
 
-    router.push("/dashboard")
-    router.refresh()
+      router.push("/dashboard")
+      router.refresh()
+    } catch {
+      setLoading(false)
+      setError("Unable to reach the authentication service. Please try again shortly.")
+    }
   }
 
   return (

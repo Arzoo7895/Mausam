@@ -15,13 +15,18 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function StatusPage() {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('system_status')
-    .select('component, description, status, sort_order, updated_at')
-    .order('sort_order', { ascending: true })
+  let rows: StatusRow[] = []
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from('system_status')
+      .select('component, description, status, sort_order, updated_at')
+      .order('sort_order', { ascending: true })
+    rows = (data ?? []) as StatusRow[]
+  } catch {
+    rows = []
+  }
 
-  const rows = (data ?? []) as StatusRow[]
   const summary = summarizeStatus(rows)
   const allOperational = summary.level === 'operational'
 
@@ -30,7 +35,7 @@ export default async function StatusPage() {
       <SiteHeader />
       <main id="main" className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <Breadcrumb
-          items={[{ label: 'Help Center', href: '/' }, { label: 'System status' }]}
+          items={[{ label: 'Help Center', href: '/help-center' }, { label: 'System status' }]}
         />
 
         <div

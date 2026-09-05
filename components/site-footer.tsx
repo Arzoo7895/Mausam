@@ -1,5 +1,6 @@
-import { CloudSun, Mail } from 'lucide-react'
+import { Mail } from 'lucide-react'
 import { GithubIcon, LinkedinIcon, XIcon } from '@/components/brand-icons'
+import { Logo } from '@/components/mausam/logo'
 
 const columns = [
   {
@@ -8,25 +9,25 @@ const columns = [
       { label: 'Features', href: '#features' },
       { label: 'How it works', href: '#how-it-works' },
       { label: 'Showcase', href: '#showcase' },
-      { label: 'Try Demo', href: '#showcase' },
+      { label: 'Open dashboard', href: '/dashboard' },
     ],
   },
   {
     title: 'Company',
     links: [
-      { label: 'About', href: '#' },
       { label: 'Why Mausam', href: '#why' },
-      { label: 'Contact', href: 'mailto:hello@mausam.ai' },
       { label: 'FAQ', href: '#faq' },
+      { label: 'Get started', href: '/auth/sign-up' },
+      { label: 'Contact', href: 'mailto:hello@mausam.ai' },
     ],
   },
   {
-    title: 'Legal',
+    title: 'Support',
     links: [
-      { label: 'Privacy Policy', href: '#' },
-      { label: 'Terms of Service', href: '#' },
-      { label: 'Cookie Policy', href: '#' },
-      { label: 'Licenses', href: '#' },
+      { label: 'Help Center', href: '/help-center' },
+      { label: 'Contact Support', href: '/help-center/contact' },
+      { label: 'System Status', href: '/help-center/status' },
+      { label: 'Sign in', href: '/login' },
     ],
   },
 ]
@@ -44,11 +45,8 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-8 sm:gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div className="max-w-xs">
-            <a href="#top" className="flex items-center gap-2 font-semibold tracking-tight">
-              <span className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <CloudSun className="size-4.5" />
-              </span>
-              Mausam AI
+            <a href="#top" aria-label="Mausam AI home" className="inline-flex">
+              <Logo />
             </a>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground text-pretty">
               AI-powered weather intelligence that turns raw atmospheric data

@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { motion } from 'motion/react'
+import { useTheme } from 'next-themes'
 import  AIDailyBrief  from '@/components/ai-daily-brief/ai-daily-brief'
 import {
   ArrowUpRight, Bell, CalendarDays, ChevronDown, CloudRain, Droplets, Eye,
@@ -31,28 +33,33 @@ function Card({ children, className = '' }: { children: React.ReactNode; classNa
 }
 
 export default function MausamDashboard() {
-  const [dark, setDark] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [menu, setMenu] = useState(false)
   const [location, setLocation] = useState('New Delhi')
   const [saved, setSaved] = useState(['New Delhi', 'Bengaluru', 'Mumbai'])
   const [alert, setAlert] = useState(true)
 
+  useEffect(() => setMounted(true), [])
+  const isDark = mounted ? resolvedTheme === 'dark' : false
+
   return (
-    <div className={dark ? 'dark min-h-screen' : 'min-h-screen'}>
       <main className="min-h-screen bg-background text-foreground transition-colors duration-500">
         <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-4 md:px-8">
             <div className="flex items-center gap-3">
               <button aria-label="Open navigation" onClick={() => setMenu(!menu)} className="rounded-lg p-2 hover:bg-muted md:hidden"><Menu size={20}/></button>
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Sun size={19}/></div>
-              <div><p className="font-semibold tracking-tight">Mausam <span className="text-primary">AI</span></p><p className="hidden text-[10px] font-medium uppercase tracking-[.18em] text-muted-foreground sm:block">Weather intelligence</p></div>
+              <Link href="/" aria-label="Mausam AI home" className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Sun size={19}/></div>
+                <div><p className="font-semibold tracking-tight">Mausam <span className="text-primary">AI</span></p><p className="hidden text-[10px] font-medium uppercase tracking-[.18em] text-muted-foreground sm:block">Weather intelligence</p></div>
+              </Link>
             </div>
             <div className="hidden items-center gap-1 rounded-xl border border-border bg-card p-1 md:flex">
               {['Overview', 'Insights', 'Locations'].map((item, i) => <button key={item} className={`rounded-lg px-4 py-2 text-sm ${i === 0 ? 'bg-muted font-medium' : 'text-muted-foreground hover:text-foreground'}`}>{item}</button>)}
             </div>
             <div className="flex items-center gap-2">
               <button aria-label="Search locations" className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"><Search size={18}/></button>
-              <button aria-label="Toggle dark mode" onClick={() => setDark(!dark)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">{dark ? <Sun size={18}/> : <Moon size={18}/>}</button>
+              <button aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`} onClick={() => setTheme(isDark ? 'light' : 'dark')} className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">{isDark ? <Sun size={18}/> : <Moon size={18}/>}</button>
               <button aria-label="Notifications" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"><Bell size={18}/><span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary"/></button>
               <div className="ml-1 hidden h-8 w-8 items-center justify-center rounded-full bg-secondary text-xs font-semibold sm:flex">AS</div>
             </div>
@@ -90,6 +97,5 @@ export default function MausamDashboard() {
           <div className="mt-8 flex flex-col gap-3 border-t border-border pt-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><p>Data from Open-Meteo · Location services enabled</p><div className="flex items-center gap-4"><button className="hover:text-foreground"><Settings2 size={13} className="mr-1 inline"/> Preferences</button><button className="hover:text-foreground">Privacy</button></div></div>
         </div>
       </main>
-    </div>
   )
 }

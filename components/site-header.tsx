@@ -1,8 +1,9 @@
 'use client'
 
 import { AnimatePresence, motion } from 'motion/react'
-import { CloudSun, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { Logo } from '@/components/mausam/logo'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
 
@@ -44,12 +45,10 @@ export function SiteHeader() {
         >
           <a
             href="#top"
-            className="flex items-center gap-2 rounded-lg pl-1 font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-ring"
+            aria-label="Mausam AI home"
+            className="rounded-lg pl-1 focus-visible:outline-2 focus-visible:outline-ring"
           >
-            <span className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-              <CloudSun className="size-4.5" />
-            </span>
-            <span className="text-[15px]">Mausam&nbsp;AI</span>
+            <Logo />
           </a>
 
           <nav
@@ -71,9 +70,18 @@ export function SiteHeader() {
             <ThemeToggle />
             <Button
               size="sm"
+              variant="ghost"
               nativeButton={false}
               className="hidden sm:inline-flex"
-              render={<a href="#get-started" />}
+              render={<a href="/login" />}
+            >
+              Log in
+            </Button>
+            <Button
+              size="sm"
+              nativeButton={false}
+              className="hidden sm:inline-flex"
+              render={<a href="/auth/sign-up" />}
             >
               Get Started
             </Button>
@@ -112,9 +120,17 @@ export function SiteHeader() {
                 </a>
               ))}
               <Button
+                variant="outline"
                 className="mt-1 w-full"
                 nativeButton={false}
-                render={<a href="#get-started" onClick={() => setOpen(false)} />}
+                render={<a href="/login" onClick={() => setOpen(false)} />}
+              >
+                Log in
+              </Button>
+              <Button
+                className="w-full"
+                nativeButton={false}
+                render={<a href="/auth/sign-up" onClick={() => setOpen(false)} />}
               >
                 Get Started
               </Button>

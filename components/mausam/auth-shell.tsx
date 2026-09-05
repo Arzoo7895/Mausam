@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { motion } from "framer-motion"
+import { motion } from "motion/react"
 import { CloudSun, Sparkles, Zap } from "lucide-react"
 import { Logo } from "@/components/mausam/logo"
 import { ThemeToggle } from "@/components/theme-toggle"

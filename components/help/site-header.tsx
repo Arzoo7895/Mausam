@@ -4,9 +4,9 @@ import { SearchDialog } from '@/components/help/search-dialog'
 import { ThemeToggle } from '@/components/help/theme-toggle'
 
 const nav = [
-  { label: 'Help Center', href: '/' },
-  { label: 'Contact', href: '/contact' },
-  { label: 'Status', href: '/status' },
+  { label: 'Help Center', href: '/help-center' },
+  { label: 'Contact', href: '/help-center/contact' },
+  { label: 'Status', href: '/help-center/status' },
 ]
 
 export function SiteHeader() {
@@ -34,7 +34,7 @@ export function SiteHeader() {
           <SearchDialog />
           <ThemeToggle />
           <Link
-            href="https://mausam.ai"
+            href="/dashboard"
             className="ml-1 hidden rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:inline-block"
           >
             Open app
