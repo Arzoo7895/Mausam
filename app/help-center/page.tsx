@@ -80,7 +80,7 @@ export default function HomePage() {
             {popular.map((a) => (
               <Link
                 key={a.slug}
-                href={`/articles/${a.slug}`}
+                href={`/help-center/articles/${a.slug}`}
                 className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary/40"
               >
                 <span className="min-w-0">
@@ -101,7 +101,7 @@ export default function HomePage() {
         <section className="mx-auto max-w-6xl px-4 pb-4 sm:px-6">
           <div className="grid gap-4 md:grid-cols-2">
             <Link
-              href="/contact"
+              href="/help-center/contact"
               className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
             >
               <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -117,7 +117,7 @@ export default function HomePage() {
               </span>
             </Link>
             <Link
-              href="/status"
+              href="/help-center/status"
               className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
             >
               <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import { Check, ChevronDown, CloudSun, Copy, RefreshCw, Share2, Sparkles } from 'lucide-react'
 
 export type DailyBriefData = {

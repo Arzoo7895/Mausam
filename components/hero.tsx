@@ -72,9 +72,9 @@ export function Hero() {
               size="lg"
               nativeButton={false}
               className="h-11 px-5 text-sm shadow-lg shadow-primary/25"
-              render={<a href="#showcase" />}
+              render={<a href="/auth/sign-up" />}
             >
-              Try Demo
+              Get Started
               <ArrowRight className="size-4" />
             </Button>
             <Button
@@ -82,9 +82,9 @@ export function Hero() {
               variant="outline"
               nativeButton={false}
               className="h-11 px-5 text-sm"
-              render={<a href="#get-started" />}
+              render={<a href="/dashboard" />}
             >
-              Get Started
+              Try live demo
             </Button>
           </motion.div>
 

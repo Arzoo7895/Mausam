@@ -66,10 +66,10 @@ export default async function ArticlePage({
       <main id="main" className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <Breadcrumb
           items={[
-            { label: 'Help Center', href: '/' },
+            { label: 'Help Center', href: '/help-center' },
             {
               label: category?.title ?? 'Articles',
-              href: category ? `/categories/${category.slug}` : undefined,
+              href: category ? `/help-center/categories/${category.slug}` : undefined,
             },
             { label: article.title },
           ]}
@@ -104,7 +104,7 @@ export default async function ArticlePage({
               <h2 className="font-display text-xl font-semibold tracking-tight text-foreground">
                 Related FAQs
               </h2>
-              <Accordion type="single" collapsible className="mt-3">
+              <Accordion multiple={false} className="mt-3">
                 {article.faqs.map((faq, i) => (
                   <AccordionItem key={i} value={`faq-${i}`}>
                     <AccordionTrigger className="text-left text-[15px] font-medium">
@@ -133,7 +133,7 @@ export default async function ArticlePage({
               {related.map((a) => (
                 <Link
                   key={a.slug}
-                  href={`/articles/${a.slug}`}
+                  href={`/help-center/articles/${a.slug}`}
                   className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3.5 transition-colors hover:border-primary/40"
                 >
                   <span className="min-w-0">
@@ -159,7 +159,7 @@ export default async function ArticlePage({
             Our support team is happy to help with anything else.
           </p>
           <Link
-            href="/contact"
+            href="/help-center/contact"
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
             Contact support

@@ -30,7 +30,7 @@ export function SearchDialog() {
 
   const go = useCallback(
     (slug: string) => {
-      router.push(`/articles/${slug}`)
+      router.push(`/help-center/articles/${slug}`)
       close()
     },
     [router, close],

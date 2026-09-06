@@ -19,7 +19,7 @@ export async function StatusPill() {
 
   return (
     <Link
-      href="/status"
+      href="/help-center/status"
       className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-foreground"
     >
       <span className="relative flex size-2.5">

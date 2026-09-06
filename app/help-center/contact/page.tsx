@@ -30,7 +30,7 @@ const CHANNELS = [
     title: 'System status',
     desc: 'Check live service health',
     detail: 'Real-time component status',
-    href: '/status',
+    href: '/help-center/status',
   },
 ]
 
@@ -41,7 +41,7 @@ export default function ContactPage() {
       <main id="main" className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <Breadcrumb
           items={[
-            { label: 'Help Center', href: '/' },
+            { label: 'Help Center', href: '/help-center' },
             { label: 'Contact support' },
           ]}
         />
