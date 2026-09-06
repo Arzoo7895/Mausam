@@ -127,7 +127,11 @@ export default function MausamDashboard() {
   function goTab(tab: string) {
     setActiveTab(tab)
     setMenu(false)
-    const ref = tab === 'Insights' ? insightsRef : tab === 'Locations' ? locationsRef : overviewRef
+    if (tab === 'Insights') {
+      window.location.href = '/ai-recommendations'
+      return
+    }
+    const ref = tab === 'Locations' ? locationsRef : overviewRef
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
@@ -223,7 +227,7 @@ export default function MausamDashboard() {
         </div>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr_1fr]">
-          <Card className="p-6 lg:col-span-2"><div className="flex items-center justify-between"><div><h2 className="font-semibold">7-day forecast</h2><p className="mt-1 text-xs text-muted-foreground">Plan ahead with confidence</p></div><Link href="/map" className="flex items-center gap-1 text-xs font-medium text-primary">Full forecast <ArrowUpRight size={14} /></Link></div><div className="mt-5 grid grid-cols-7 gap-1">{(data?.daily ?? []).map((d, i) => <div key={d.date} className={`flex flex-col items-center gap-3 rounded-xl px-1 py-3 ${i === 0 ? 'bg-muted' : ''}`}><span className="text-xs font-medium">{d.label}</span><WeatherIcon code={d.code} size={20} /><span className="text-sm font-semibold">{d.maxC}°</span><span className="text-xs text-muted-foreground">{d.minC}°</span><span className="text-[10px] text-primary">{d.precipProb}%</span></div>)}{!data && <div className="col-span-7 py-6 text-center text-sm text-muted-foreground">{loading ? 'Loading forecast…' : 'No forecast available.'}</div>}</div></Card>
+          <Card className="p-6 lg:col-span-2"><div className="flex items-center justify-between"><div><h2 className="font-semibold">7-day forecast</h2><p className="mt-1 text-xs text-muted-foreground">Plan ahead with confidence</p></div><Link href="/forecast-details" className="flex items-center gap-1 text-xs font-medium text-primary">Full forecast <ArrowUpRight size={14} /></Link></div><div className="mt-5 grid grid-cols-7 gap-1">{(data?.daily ?? []).map((d, i) => <div key={d.date} className={`flex flex-col items-center gap-3 rounded-xl px-1 py-3 ${i === 0 ? 'bg-muted' : ''}`}><span className="text-xs font-medium">{d.label}</span><WeatherIcon code={d.code} size={20} /><span className="text-sm font-semibold">{d.maxC}°</span><span className="text-xs text-muted-foreground">{d.minC}°</span><span className="text-[10px] text-primary">{d.precipProb}%</span></div>)}{!data && <div className="col-span-7 py-6 text-center text-sm text-muted-foreground">{loading ? 'Loading forecast…' : 'No forecast available.'}</div>}</div></Card>
           <Card className="p-6"><div className="flex items-center justify-between"><h2 className="font-semibold">Comfort index</h2><Gauge size={18} className="text-primary" /></div><div className="mt-5 flex items-end gap-3"><span className="text-4xl font-semibold tracking-tight">{data ? comfort.score : '—'}</span><span className="mb-1 text-sm text-muted-foreground">/ 100 · {comfort.label}</span></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${data ? comfort.score : 0}%` }} /></div><div className="mt-5 grid grid-cols-2 gap-3 text-xs"><span className="text-muted-foreground">UV index <strong className="ml-1 text-foreground">{data ? data.uvIndexMax : '—'}</strong></span><span className="text-muted-foreground">AQI <strong className="ml-1 text-foreground">{aqiLabel(data?.airQuality.usAqi)}</strong></span></div></Card>
         </div>
 

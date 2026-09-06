@@ -76,8 +76,10 @@ function getSnapshot(): State {
   return state
 }
 
+const SERVER_STATE: State = { locations: DEFAULT_LOCATIONS, activeKey: locationKey(DEFAULT_LOCATIONS[0]) }
+
 function getServerSnapshot(): State {
-  return { locations: DEFAULT_LOCATIONS, activeKey: locationKey(DEFAULT_LOCATIONS[0]) }
+  return SERVER_STATE
 }
 
 export type AddResult = 'added' | 'exists'

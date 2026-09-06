@@ -16,7 +16,16 @@ export type WeatherCodeInfo = {
   icon: 'sun' | 'cloud' | 'rain' | 'snow' | 'fog'
 }
 
-export type HourPoint = { time: string; label: string; tempC: number; code: number; precipProb: number }
+export type HourPoint = {
+  time: string
+  label: string
+  tempC: number
+  code: number
+  precipProb: number
+  humidity: number
+  windKmh: number
+  precipitationMm: number
+}
 export type DayPoint = {
   date: string
   label: string
@@ -24,6 +33,9 @@ export type DayPoint = {
   minC: number
   code: number
   precipProb: number
+  uvIndex: number
+  sunrise: string
+  sunset: string
 }
 
 export type WeatherData = {
@@ -140,7 +152,7 @@ export async function getWeather(latitude: number, longitude: number, signal?: A
   const forecastUrl =
     `${FORECAST_URL}?latitude=${latitude}&longitude=${longitude}` +
     `&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,visibility` +
-    `&hourly=temperature_2m,weather_code,precipitation_probability` +
+    `&hourly=temperature_2m,weather_code,precipitation_probability,relative_humidity_2m,wind_speed_10m,precipitation` +
     `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,sunrise,sunset` +
     `&timezone=auto&forecast_days=7`
 
@@ -169,6 +181,9 @@ export async function getWeather(latitude: number, longitude: number, signal?: A
       tempC: Math.round(f.hourly.temperature_2m[idx]),
       code: f.hourly.weather_code[idx],
       precipProb: f.hourly.precipitation_probability?.[idx] ?? 0,
+      humidity: Math.round(f.hourly.relative_humidity_2m?.[idx] ?? f.current.relative_humidity_2m ?? 0),
+      windKmh: Math.round(f.hourly.wind_speed_10m?.[idx] ?? f.current.wind_speed_10m ?? 0),
+      precipitationMm: Number((f.hourly.precipitation?.[idx] ?? 0).toFixed(1)),
     }
   })
 
@@ -182,6 +197,9 @@ export async function getWeather(latitude: number, longitude: number, signal?: A
       minC: Math.round(f.daily.temperature_2m_min[i]),
       code: f.daily.weather_code[i],
       precipProb: f.daily.precipitation_probability_max?.[i] ?? 0,
+      uvIndex: Math.round(f.daily.uv_index_max?.[i] ?? 0),
+      sunrise: f.daily.sunrise?.[i] ?? '',
+      sunset: f.daily.sunset?.[i] ?? '',
     }
   })
 
