@@ -48,6 +48,9 @@ export type WeatherData = {
     precipitation: number
     code: number
     isDay: boolean
+    windDirection: number
+    windGustKmh: number
+    cloudCover: number
   }
   hourly: HourPoint[]
   daily: DayPoint[]
@@ -151,7 +154,7 @@ export async function getCurrentPosition(): Promise<GeolocationPosition> {
 export async function getWeather(latitude: number, longitude: number, signal?: AbortSignal): Promise<WeatherData> {
   const forecastUrl =
     `${FORECAST_URL}?latitude=${latitude}&longitude=${longitude}` +
-    `&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,visibility` +
+    `&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,visibility` +
     `&hourly=temperature_2m,weather_code,precipitation_probability,relative_humidity_2m,wind_speed_10m,precipitation` +
     `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,sunrise,sunset` +
     `&timezone=auto&forecast_days=7`
@@ -223,6 +226,9 @@ export async function getWeather(latitude: number, longitude: number, signal?: A
       precipitation: f.current.precipitation ?? 0,
       code: f.current.weather_code,
       isDay: f.current.is_day === 1,
+      windDirection: Math.round(f.current.wind_direction_10m ?? 0),
+      windGustKmh: Math.round(f.current.wind_gusts_10m ?? f.current.wind_speed_10m ?? 0),
+      cloudCover: Math.round(f.current.cloud_cover ?? 0),
     },
     hourly,
     daily,

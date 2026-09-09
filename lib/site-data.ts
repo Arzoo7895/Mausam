@@ -183,7 +183,7 @@ export const testimonials: Testimonial[] = [
     quote:
       'Finally a weather product that feels designed. The air-quality guidance changed how I plan my kids\u2019 outdoor time.',
     name: 'Priya Menon',
-    role: 'Parent & teacher, Delhi',
+    role: 'Parent & teacher, Bengaluru',
     initials: 'PM',
   },
   {
