@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import { useTheme } from 'next-themes'
@@ -8,10 +8,10 @@ import { toast } from 'sonner'
 import AIDailyBrief, { type DailyBriefData } from '@/components/ai-daily-brief/ai-daily-brief'
 import { LocationSearchDialog } from '@/components/mausam-dashboard/location-search-dialog'
 import {
-  ArrowUpRight, Bell, CalendarDays, ChevronDown, Cloud, CloudFog, CloudRain, CloudSnow,
-  Droplets, Eye, Gauge, Leaf, Loader2, LocateFixed, MapPin, Menu, Moon, MoreHorizontal,
-  Navigation, Plus, Search, Settings2, ShieldAlert, Sun, Sunrise, Thermometer, Umbrella,
-  Wind, X,
+  ArrowUpRight, Bell, CalendarDays, Cloud, CloudFog, CloudRain, CloudSnow,
+  Droplets, Eye, Gauge, Home, Leaf, Loader2, LocateFixed, MapPin, Moon, MoreHorizontal,
+  Navigation, Plus, Search, Settings2, ShieldAlert, Sparkles, Sun, Sunrise, Thermometer, Umbrella,
+  UserRound, Wind, X,
 } from 'lucide-react'
 import {
   type GeoLocation, type WeatherData, formatTime, getCurrentPosition, locationKey,
@@ -21,13 +21,13 @@ import { useLocations } from '@/lib/weather/use-locations'
 import { useWeather } from '@/lib/weather/use-weather'
 import { createRecommendations } from '@/lib/recommendations'
 
-function WeatherIcon({ code = 0, size = 24 }: { code?: number; size?: number }) {
+function WeatherIcon({ code = 0, isDay = true, size = 24 }: { code?: number; isDay?: boolean; size?: number }) {
   const { icon } = weatherCodeInfo(code)
   if (icon === 'rain') return <CloudRain size={size} aria-hidden="true" />
   if (icon === 'snow') return <CloudSnow size={size} aria-hidden="true" />
   if (icon === 'fog') return <CloudFog size={size} aria-hidden="true" />
   if (icon === 'cloud') return <Cloud size={size} aria-hidden="true" />
-  return <Sun size={size} aria-hidden="true" />
+  return isDay ? <Sun size={size} aria-hidden="true" /> : <Moon size={size} aria-hidden="true" />
 }
 
 function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -103,37 +103,21 @@ function buildBrief(data: WeatherData): DailyBriefData {
 export default function MausamDashboard() {
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [menu, setMenu] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
   const [alertOpen, setAlertOpen] = useState(true)
   const [searchOpen, setSearchOpen] = useState(false)
   const [locating, setLocating] = useState(false)
-  const [activeTab, setActiveTab] = useState('Overview')
-
   const { locations, active, activeKey, addLocation, removeLocation, setActive } = useLocations()
   const { data, loading, error, refresh } = useWeather(active?.latitude, active?.longitude)
 
   useEffect(() => setMounted(true), [])
   const isDark = mounted ? resolvedTheme === 'dark' : false
 
-  const overviewRef = useRef<HTMLDivElement>(null)
-  const insightsRef = useRef<HTMLDivElement>(null)
-  const locationsRef = useRef<HTMLDivElement>(null)
-
   const brief = useMemo(() => (data ? buildBrief(data) : undefined), [data])
   const comfort = comfortScore(data)
   const c = data?.current
   const today = data?.daily[0]
 
-  function goTab(tab: string) {
-    setActiveTab(tab)
-    setMenu(false)
-    if (tab === 'Insights') {
-      window.location.href = '/ai-recommendations'
-      return
-    }
-    const ref = tab === 'Locations' ? locationsRef : overviewRef
-    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
 
   function handleSelect(loc: GeoLocation) {
     const res = addLocation(loc, true)
@@ -159,35 +143,25 @@ export default function MausamDashboard() {
     }
   }
 
-  const tabs = ['Overview', 'Insights', 'Locations']
-  const locationLabel = `${active?.name ?? '—'}${active?.country ? `, ${active.country}` : ''}`
+  const locationLabel = `${active?.name ?? 'Choose a location'}${active?.country ? `, ${active.country}` : ''}`
   const dateLabel = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
 
   return (
-    <main className="min-h-screen bg-background text-foreground transition-colors duration-500">
+    <main className="min-h-screen bg-background pb-28 text-foreground transition-colors duration-500">
       <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-4 md:px-8">
-          <div className="flex items-center gap-3">
-            <button aria-label="Open navigation" onClick={() => setMenu(!menu)} className="rounded-lg p-2 hover:bg-muted md:hidden"><Menu size={20} /></button>
-            <Link href="/" aria-label="Mausam AI home" className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Sun size={19} /></div>
-              <div><p className="font-semibold tracking-tight">Mausam <span className="text-primary">AI</span></p><p className="hidden text-[10px] font-medium uppercase tracking-[.18em] text-muted-foreground sm:block">Weather intelligence</p></div>
-            </Link>
-          </div>
-          <div className="hidden items-center gap-1 rounded-xl border border-border bg-card p-1 md:flex">
-            {tabs.map((item) => <button key={item} onClick={() => goTab(item)} className={`rounded-lg px-4 py-2 text-sm transition-colors ${activeTab === item ? 'bg-muted font-medium' : 'text-muted-foreground hover:text-foreground'}`}>{item}</button>)}
-          </div>
+          <Link href="/" aria-label="Mausam AI home" className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Sun size={19} /></div>
+            <div><p className="font-semibold tracking-tight">Mausam <span className="text-primary">AI</span></p><p className="hidden text-[10px] font-medium uppercase tracking-[.18em] text-muted-foreground sm:block">Weather intelligence</p></div>
+          </Link>
           <div className="flex items-center gap-2">
             <button onClick={() => setSearchOpen(true)} aria-label="Search locations" className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"><Search size={18} /></button>
             <button aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`} onClick={() => setTheme(isDark ? 'light' : 'dark')} className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">{isDark ? <Sun size={18} /> : <Moon size={18} />}</button>
-            <Link href="/alerts" aria-label="Notifications and alerts" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"><Bell size={18} /><span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" /></Link>
-            <Link href="/user-profile-and-setting" aria-label="Profile and settings" className="ml-1 hidden h-8 w-8 items-center justify-center rounded-full bg-secondary text-xs font-semibold sm:flex">AS</Link>
           </div>
         </div>
-        {menu && <div className="border-t border-border px-4 py-3 md:hidden"><div className="flex gap-2">{tabs.map((x) => <button key={x} onClick={() => goTab(x)} className={`rounded-lg px-3 py-2 text-sm ${activeTab === x ? 'bg-muted font-medium' : 'bg-muted/40'}`}>{x}</button>)}</div></div>}
       </header>
 
-      <div ref={overviewRef} className="mx-auto max-w-[1440px] px-4 py-6 md:px-8 md:py-8">
+      <div className="mx-auto max-w-[1440px] px-4 py-6 md:px-8 md:py-8">
         <div className="mb-7 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <p className="mb-2 flex items-center gap-2 text-sm text-muted-foreground"><MapPin size={14} className="text-primary" /> {locationLabel} {loading && <Loader2 size={13} className="animate-spin" />}</p>
@@ -215,8 +189,8 @@ export default function MausamDashboard() {
         )}
 
         <div className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
-          <Card className="relative overflow-hidden bg-primary text-primary-foreground"><div className="absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,.25),transparent_35%)]" /><div className="relative flex h-full min-h-[250px] flex-col justify-between p-6 md:p-8"><div className="flex items-start justify-between"><div><p className="text-sm text-primary-foreground/70">Current conditions</p><div className="mt-4 flex items-start gap-3"><span className="text-7xl font-semibold tracking-[-.08em]">{c ? `${c.tempC}°` : '—'}</span><span className="mt-3 text-sm text-primary-foreground/75">{c ? `Feels like ${c.apparentC}°` : 'Loading…'}</span></div><p className="mt-2 text-lg">{c ? weatherCodeInfo(c.code).label : ' '}</p></div><WeatherIcon code={c?.code ?? 0} size={62} /></div><div className="flex flex-wrap gap-5 border-t border-primary-foreground/15 pt-4 text-sm"><span className="flex items-center gap-2"><Wind size={15} /> {c ? `${c.windKmh} km/h` : '—'}</span><span className="flex items-center gap-2"><Droplets size={15} /> {c ? `${c.humidity}% humidity` : '—'}</span><span className="flex items-center gap-2"><Eye size={15} /> {c ? `${c.visibilityKm} km visibility` : '—'}</span></div></div></Card>
-          <div ref={insightsRef}>
+          <Card className="relative overflow-hidden bg-primary text-primary-foreground"><div className="absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,.25),transparent_35%)]" /><div className="relative flex h-full min-h-[250px] flex-col justify-between p-6 md:p-8"><div className="flex items-start justify-between"><div><p className="text-sm text-primary-foreground/70">Current conditions</p><div className="mt-4 flex items-start gap-3"><span className="text-7xl font-semibold tracking-[-.08em]">{c ? `${c.tempC}°` : '—'}</span><span className="mt-3 text-sm text-primary-foreground/75">{c ? `Feels like ${c.apparentC}°` : 'Loading…'}</span></div><p className="mt-2 text-lg">{c ? weatherCodeInfo(c.code).label : ' '}</p></div><WeatherIcon code={c?.code ?? 0} isDay={c?.isDay ?? true} size={62} /></div><div className="flex flex-wrap gap-5 border-t border-primary-foreground/15 pt-4 text-sm"><span className="flex items-center gap-2"><Wind size={15} /> {c ? `${c.windKmh} km/h` : '—'}</span><span className="flex items-center gap-2"><Droplets size={15} /> {c ? `${c.humidity}% humidity` : '—'}</span><span className="flex items-center gap-2"><Eye size={15} /> {c ? `${c.visibilityKm} km visibility` : '—'}</span></div></div></Card>
+          <div>
             <AIDailyBrief data={brief} loading={loading && !data} error={error && !data ? error : null} onRefresh={refresh} updatedAt="just now" />
           </div>
         </div>
@@ -237,14 +211,17 @@ export default function MausamDashboard() {
           <Card className="p-5"><div className="flex items-center gap-3"><div className="rounded-lg bg-primary/10 p-2 text-primary"><Sunrise size={17} /></div><div><h3 className="text-sm font-semibold">Sunrise &amp; sunset</h3><p className="text-xs text-muted-foreground">Daylight for {active?.name}</p></div></div><p className="mt-4 text-2xl font-semibold">{formatTime(data?.sunrise ?? '')}</p><p className="mt-1 text-xs text-muted-foreground">Sunset {formatTime(data?.sunset ?? '')}</p></Card>
         </div>
 
-        <div ref={locationsRef} className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr]">
+        <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr]">
           <Card className="p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold">Saved locations</h2><p className="mt-1 text-xs text-muted-foreground">Your cities at a glance</p></div><button aria-label="Add saved location" onClick={() => setSearchOpen(true)} className="rounded-lg p-2 text-primary hover:bg-muted"><Plus size={17} /></button></div><div className="mt-4 flex flex-wrap gap-2">{locations.map((loc) => { const key = locationKey(loc); const isActive = key === activeKey; return <span key={key} className={`group flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-colors ${isActive ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}><button onClick={() => setActive(key)} className="flex items-center gap-2"><MapPin size={14} />{loc.name}</button>{locations.length > 1 && <button onClick={() => removeLocation(key)} aria-label={`Remove ${loc.name}`} className="ml-0.5 rounded-md p-0.5 text-muted-foreground opacity-60 hover:bg-background/60 hover:text-foreground group-hover:opacity-100"><X size={13} /></button>}</span> })}</div></Card>
-          <Card className="p-6"><div><h2 className="font-semibold">Quick actions</h2><p className="mt-1 text-xs text-muted-foreground">Make your forecast work for you</p></div><div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4"><Link href="/map" className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><CalendarDays size={18} className="text-primary" /> Plan trip</Link><Link href="/alerts" className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><Bell size={18} className="text-primary" /> Set alert</Link><Link href="/map" className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><Thermometer size={18} className="text-primary" /> Compare</Link><Link href="/alerts" className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-xs hover:bg-muted"><Wind size={18} className="text-primary" /> Air quality</Link></div></Card>
+          <Card className="p-6"><div className="flex items-start gap-3"><div className="rounded-lg bg-primary/10 p-2 text-primary"><Sparkles size={17} /></div><div><h2 className="font-semibold">Quick actions</h2><p className="mt-1 text-xs leading-5 text-muted-foreground">Use the live signals below to decide what to do next. Your selected location updates these indicators automatically.</p></div></div><div className="mt-4 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4"><div className="rounded-xl border border-border p-3"><CalendarDays size={17} className="text-primary" /><p className="mt-2 font-medium">Plan trip</p><p className="mt-1 text-muted-foreground">{today ? `${today.precipProb}% rain chance` : 'Forecast pending'}</p></div><div className="rounded-xl border border-border p-3"><Bell size={17} className="text-primary" /><p className="mt-2 font-medium">Set alert</p><p className="mt-1 text-muted-foreground">{today?.precipProb && today.precipProb >= 40 ? 'Rain watch active' : 'No active warning'}</p></div><div className="rounded-xl border border-border p-3"><Thermometer size={17} className="text-primary" /><p className="mt-2 font-medium">Compare</p><p className="mt-1 text-muted-foreground">{c ? `${c.tempC}° feels like ${c.apparentC}°` : 'Conditions pending'}</p></div><div className="rounded-xl border border-border p-3"><Wind size={17} className="text-primary" /><p className="mt-2 font-medium">Air quality</p><p className="mt-1 text-muted-foreground">{aqiLabel(data?.airQuality.usAqi)}</p></div></div></Card>
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-border pt-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><p>Data from Open-Meteo · Location services enabled</p><div className="flex items-center gap-4"><Link href="/user-profile-and-setting" className="hover:text-foreground"><Settings2 size={13} className="mr-1 inline" /> Preferences</Link><Link href="/help-center/categories/privacy-security" className="hover:text-foreground">Privacy</Link></div></div>
       </div>
 
+      {moreOpen && <div className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-[2px]" onClick={() => setMoreOpen(false)} aria-hidden="true" />}
+      {moreOpen && <section role="dialog" aria-modal="true" aria-labelledby="more-menu-title" className="fixed inset-x-4 bottom-24 z-50 rounded-2xl border border-border bg-card p-4 shadow-2xl sm:left-auto sm:right-6 sm:w-80"><div className="flex items-center justify-between"><h2 id="more-menu-title" className="font-semibold">More</h2><button aria-label="Close more menu" onClick={() => setMoreOpen(false)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><X size={17} /></button></div><div className="mt-3 grid gap-1"><Link href="/user-profile-and-setting" onClick={() => setMoreOpen(false)} className="flex min-h-11 items-center gap-3 rounded-xl px-3 hover:bg-muted"><UserRound size={18} className="text-primary" /> User profile</Link><Link href="/user-profile-and-setting" onClick={() => setMoreOpen(false)} className="flex min-h-11 items-center gap-3 rounded-xl px-3 hover:bg-muted"><Settings2 size={18} className="text-primary" /> Application settings</Link><Link href="/alerts" onClick={() => setMoreOpen(false)} className="flex min-h-11 items-center gap-3 rounded-xl px-3 hover:bg-muted"><Bell size={18} className="text-primary" /> Alert preferences</Link><button onClick={() => { setTheme(isDark ? 'light' : 'dark'); setMoreOpen(false) }} className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-left hover:bg-muted"><Moon size={18} className="text-primary" /> Switch to {isDark ? 'light' : 'dark'} mode</button></div></section>}
+      <nav aria-label="Dashboard navigation" className="fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-md items-center justify-around rounded-2xl border border-border/80 bg-card/90 p-2 shadow-2xl backdrop-blur-xl [padding-bottom:calc(.5rem+env(safe-area-inset-bottom))]"><Link href="/dashboard" className="flex min-h-11 min-w-16 flex-col items-center justify-center gap-1 rounded-xl bg-primary/10 px-3 text-[11px] font-medium text-primary"><Home size={18} />Home</Link><Link href="/ai-recommendations" className="flex min-h-11 min-w-16 flex-col items-center justify-center gap-1 rounded-xl px-3 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"><Sparkles size={18} />AI</Link><Link href="/forecast-details" className="flex min-h-11 min-w-16 flex-col items-center justify-center gap-1 rounded-xl px-3 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"><Cloud size={18} />Forecast</Link><button onClick={() => setMoreOpen(!moreOpen)} aria-expanded={moreOpen} aria-controls="more-menu-title" className="flex min-h-11 min-w-16 flex-col items-center justify-center gap-1 rounded-xl px-3 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"><MoreHorizontal size={18} />More</button></nav>
       <LocationSearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} onSelect={handleSelect} />
     </main>
   )

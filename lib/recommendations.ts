@@ -1,4 +1,5 @@
 export type RecommendationCategory = 'outdoor' | 'travel' | 'clothing' | 'health' | 'precaution'
+export type RecommendationPersona = 'student' | 'farmer' | 'commuter' | 'traveler'
 export type RecommendationSeverity = 'good' | 'info' | 'warning' | 'urgent'
 
 export interface WeatherSnapshot {
@@ -20,6 +21,8 @@ export interface RecommendationInput {
   weather: WeatherSnapshot
   airQuality?: AirQualitySnapshot
   preferences?: { outdoorActivities?: boolean; healthConcerns?: string[] }
+  persona?: RecommendationPersona
+  context?: { locationName?: string; visibilityKm?: number; humidity?: number }
 }
 
 export interface Recommendation {
@@ -49,6 +52,13 @@ export function createRecommendations(input: RecommendationInput): Recommendatio
 
   if (airQuality?.usAqi !== undefined && airQuality.usAqi > 100) recommendations.push({ category: 'health', severity: airQuality.usAqi > 150 ? 'urgent' : 'warning', title: 'Air quality needs attention', guidance: 'Reduce prolonged outdoor exertion. If you have respiratory concerns, consider indoor plans and keep medication nearby.', value: `AQI ${Math.round(airQuality.usAqi)}` })
   if (weather.windSpeedKmh !== undefined && weather.windSpeedKmh >= 35) recommendations.push({ category: 'travel', severity: 'warning', title: 'Expect gusty conditions', guidance: 'Secure loose items, use care on two-wheelers, and allow extra caution near trees and open areas.', value: `${Math.round(weather.windSpeedKmh)} km/h wind` })
+
+  const persona = input.persona ?? 'traveler'
+  const locationName = input.context?.locationName ?? 'your area'
+  if (persona === 'student') recommendations.push({ category: 'travel', severity: rainy ? 'warning' : 'good', title: rainy ? 'Protect the campus commute' : 'Good study commute window', guidance: rainy ? `Rain may slow your route around ${locationName}; carry protection and favor covered paths between classes.` : `Conditions look suitable for getting to campus and balancing indoor and outdoor study time in ${locationName}.`, value: rainy ? 'Transit caution' : 'Campus-friendly' })
+  if (persona === 'farmer') recommendations.push({ category: 'outdoor', severity: rainy ? 'warning' : 'info', title: rainy ? 'Plan field work around rain' : 'Field work window is open', guidance: rainy ? 'Prioritize drainage checks and delay spray applications until leaves and soil are workable.' : `Use the clearer window in ${locationName} for field work, while monitoring humidity and irrigation needs.`, value: input.context?.humidity !== undefined ? `${input.context.humidity}% humidity` : undefined })
+  if (persona === 'commuter') recommendations.push({ category: 'travel', severity: (input.context?.visibilityKm ?? 10) < 3 || rainy ? 'warning' : 'info', title: rainy ? 'Allow extra travel time' : 'Commute conditions are manageable', guidance: rainy ? 'Expect reduced road grip and possible waterlogging. Leave earlier and avoid low-lying routes.' : `Visibility and weather are currently workable for commuting through ${locationName}.`, value: input.context?.visibilityKm !== undefined ? `${input.context.visibilityKm} km visibility` : undefined })
+  if (persona === 'traveler') recommendations.push({ category: 'travel', severity: rainy ? 'warning' : 'good', title: rainy ? 'Keep the itinerary flexible' : 'Good window for exploring', guidance: rainy ? 'Keep indoor alternatives ready and check the next forecast update before longer excursions.' : 'Outdoor sightseeing is supported by the current conditions; keep sun and hydration protection with you.', value: `${locationName} outlook` })
 
   if (recommendations.length < 3) recommendations.push({ category: 'clothing', severity: 'info', title: temp !== undefined && temp >= 24 ? 'Choose breathable layers' : 'Dress in comfortable layers', guidance: temp !== undefined && temp >= 24 ? 'Light, breathable fabrics will keep you comfortable through the day.' : 'A flexible outer layer will help you adapt as the temperature changes.', value: temp !== undefined ? `${Math.round(temp)}° now` : undefined })
   return recommendations

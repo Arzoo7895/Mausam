@@ -7,7 +7,7 @@ const STORAGE_KEY = 'mausam:locations'
 const ACTIVE_KEY = 'mausam:active'
 
 export const DEFAULT_LOCATIONS: GeoLocation[] = [
-  { id: '1261481', name: 'New Delhi', region: 'Delhi', country: 'India', countryCode: 'IN', latitude: 28.6139, longitude: 77.209 },
+  { id: '1261481', name: 'Jaipur', region: 'Rajasthan', country: 'India', countryCode: 'IN', latitude: 26.9124, longitude: 75.7873 },
   { id: '1277333', name: 'Bengaluru', region: 'Karnataka', country: 'India', countryCode: 'IN', latitude: 12.9716, longitude: 77.5946 },
   { id: '1275339', name: 'Mumbai', region: 'Maharashtra', country: 'India', countryCode: 'IN', latitude: 19.076, longitude: 72.8777 },
 ]

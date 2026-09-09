@@ -13,7 +13,7 @@ import {
 import { getCurrentPosition, searchLocations } from '@/lib/weather/service'
 
 const stations = [
-  { id: 'delhi', city: 'New Delhi', region: 'Delhi, India', temp: 31, condition: 'Mostly clear', humidity: 42, wind: 14, aqi: 86, rain: 4, coords: [77.209, 28.614] as [number, number], icon: Sun, tone: 'sunny' },
+  { id: 'jaipur', city: 'Jaipur', region: 'Rajasthan, India', temp: 31, condition: 'Mostly clear', humidity: 42, wind: 14, aqi: 86, rain: 4, coords: [75.787, 26.912] as [number, number], icon: Sun, tone: 'sunny' },
   { id: 'mumbai', city: 'Mumbai', region: 'Maharashtra, India', temp: 28, condition: 'Light rain', humidity: 78, wind: 19, aqi: 64, rain: 68, coords: [72.877, 19.076] as [number, number], icon: CloudRain, tone: 'rain' },
   { id: 'bengaluru', city: 'Bengaluru', region: 'Karnataka, India', temp: 24, condition: 'Cloudy', humidity: 68, wind: 11, aqi: 52, rain: 31, coords: [77.594, 12.972] as [number, number], icon: Cloud, tone: 'cloud' },
   { id: 'kolkata', city: 'Kolkata', region: 'West Bengal, India', temp: 29, condition: 'Humid & cloudy', humidity: 81, wind: 9, aqi: 72, rain: 44, coords: [88.363, 22.573] as [number, number], icon: Cloud, tone: 'cloud' },
