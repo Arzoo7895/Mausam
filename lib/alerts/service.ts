@@ -1,3 +1,5 @@
+import { getWeather, type WeatherData } from '@/lib/weather/service'
+
 export type AlertType = 'Severe Weather' | 'Daily Forecast' | 'Air Quality' | 'Temperature' | 'Precipitation'
 export type AlertSeverity = 'critical' | 'high' | 'medium' | 'low'
 
@@ -26,23 +28,37 @@ export type NotificationSettings = {
   precipitation: boolean
   email: boolean
   push: boolean
-  sms: boolean
 }
 
-const fallbackAlerts: WeatherAlert[] = [
-  { id: 'rain-1', type: 'Severe Weather', title: 'Heavy rainfall warning', location: 'Mumbai, Maharashtra', detail: 'Intense monsoon showers are expected through the evening with a risk of waterlogging in low-lying areas. Plan your commute early.', timestamp: 'Today, 10:24 AM', relativeTime: '12 min ago', severity: 'critical', unread: true, favorite: true, archived: false, expiresAt: 'Today at 9:00 PM', temperature: '28°C', insight: 'Rainfall is heaviest between 4–7 PM. Avoid underpasses and coastal roads during high tide.' },
-  { id: 'heat-1', type: 'Temperature', title: 'Heatwave advisory', location: 'Jaipur, Rajasthan', detail: 'High daytime temperatures with elevated humidity. Limit outdoor activity in the afternoon and stay hydrated.', timestamp: 'Today, 9:05 AM', relativeTime: '1 hr ago', severity: 'high', unread: true, favorite: false, archived: false, expiresAt: 'Today at 6:00 PM', temperature: '41°C', insight: 'Heat stress peaks between 12–4 PM. Prefer shaded routes and carry water.' },
-  { id: 'air-1', type: 'Air Quality', title: 'Poor air quality alert', location: 'Jaipur, Rajasthan', detail: 'AQI has risen to unhealthy levels for sensitive groups. Consider limiting prolonged outdoor exertion.', timestamp: 'Today, 7:42 AM', relativeTime: '3 hrs ago', severity: 'medium', unread: true, favorite: false, archived: false, expiresAt: 'Tomorrow at 10:00 AM', insight: 'AQI may improve overnight as wind speeds increase.' },
-  { id: 'storm-1', type: 'Precipitation', title: 'Thunderstorm with lightning', location: 'Kolkata, West Bengal', detail: 'Localized thunderstorms and gusty winds are likely this evening. Secure loose outdoor items.', timestamp: 'Yesterday, 6:18 PM', relativeTime: 'Yesterday', severity: 'medium', unread: false, favorite: true, archived: false, expiresAt: 'Tomorrow at 2:00 AM', insight: 'Cells are moving inland at 20 km/h with peak activity after sunset.' },
-  { id: 'wind-1', type: 'Severe Weather', title: 'Strong wind advisory', location: 'Chennai, Tamil Nadu', detail: 'Coastal winds strengthening through the day. Two-wheeler riders should exercise caution.', timestamp: 'Yesterday, 3:11 PM', relativeTime: 'Yesterday', severity: 'low', unread: false, favorite: false, archived: false, expiresAt: 'Tomorrow at 7:00 AM' },
-  { id: 'forecast-1', type: 'Daily Forecast', title: 'Your morning forecast', location: 'Bengaluru, Karnataka', detail: 'A mild, cloudy morning with pleasant temperatures and clearing skies by late afternoon.', timestamp: 'Yesterday, 7:00 AM', relativeTime: 'Yesterday', severity: 'low', unread: false, favorite: false, archived: false, temperature: '24°C' },
-]
+const defaultSettings: NotificationSettings = { severeWeather: true, dailyForecast: true, airQuality: true, temperature: false, precipitation: true, email: true, push: true }
 
-export async function getAlerts(): Promise<WeatherAlert[]> {
-  // The connected Supabase project is ready for persistence; this fallback keeps the route usable until its alert table schema is defined.
-  return fallbackAlerts
+function makeAlert(input: Omit<WeatherAlert, 'timestamp' | 'relativeTime' | 'unread' | 'favorite' | 'archived'>): WeatherAlert {
+  return { ...input, timestamp: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }), relativeTime: 'Just now', unread: true, favorite: false, archived: false }
+}
+
+export function buildWeatherAlerts(weather: WeatherData, locationName: string): WeatherAlert[] {
+  const alerts: WeatherAlert[] = []
+  const current = weather.current
+  const today = weather.daily[0]
+  const aqi = weather.airQuality.usAqi ?? 0
+  const temp = `${current.tempC}°C`
+  if (current.code >= 95) alerts.push(makeAlert({ id: `storm-${locationName}`, type: 'Severe Weather', title: 'Thunderstorm risk', location: locationName, detail: 'Thunderstorms are active or expected nearby. Avoid exposed areas and secure loose outdoor items.', severity: 'critical', temperature: temp, insight: 'Lightning can remain dangerous even when rain is light.' }))
+  if (today?.precipProb >= 70 || current.precipitation >= 5) alerts.push(makeAlert({ id: `rain-${locationName}`, type: 'Precipitation', title: 'Heavy rain likely', location: locationName, detail: `Rain probability is ${today?.precipProb ?? 0}% today. Plan extra travel time and avoid waterlogged routes.`, severity: today.precipProb >= 85 ? 'high' : 'medium', expiresAt: today?.date, temperature: temp }))
+  if (current.tempC >= 40 || today?.maxC >= 40) alerts.push(makeAlert({ id: `heat-${locationName}`, type: 'Temperature', title: 'High heat advisory', location: locationName, detail: 'High temperatures are expected. Limit strenuous outdoor activity during the afternoon and drink water regularly.', severity: 'high', temperature: temp }))
+  if (aqi >= 151) alerts.push(makeAlert({ id: `aqi-${locationName}`, type: 'Air Quality', title: 'Poor air quality', location: locationName, detail: `US AQI is ${Math.round(aqi)}. Sensitive groups should reduce prolonged outdoor exertion.`, severity: aqi >= 201 ? 'high' : 'medium', insight: 'Check local conditions before outdoor exercise.' }))
+  if (current.windGustKmh >= 50) alerts.push(makeAlert({ id: `wind-${locationName}`, type: 'Severe Weather', title: 'Strong wind advisory', location: locationName, detail: `Wind gusts may reach ${current.windGustKmh} km/h. Use caution on two-wheelers and near unsecured objects.`, severity: 'medium', temperature: temp }))
+  return alerts
+}
+
+export async function getAlerts(location?: { latitude: number; longitude: number; name: string }): Promise<WeatherAlert[]> {
+  if (!location) return []
+  try {
+    return buildWeatherAlerts(await getWeather(location.latitude, location.longitude), location.name)
+  } catch {
+    return []
+  }
 }
 
 export async function getNotificationSettings(): Promise<NotificationSettings> {
-  return { severeWeather: true, dailyForecast: true, airQuality: true, temperature: false, precipitation: true, email: true, push: true, sms: false }
+  return defaultSettings
 }
