@@ -1,49 +1,124 @@
-export type PersonaType = 'student' | 'farmer' | 'commuter' | 'traveler'
-export type RecommendationPersona = PersonaType
-export type RecommendationPriority = 'high' | 'medium' | 'low'
-export type RecommendationCategory = 'academic' | 'agriculture' | 'commute' | 'leisure' | 'health' | 'precaution' | 'timing' | 'clothing'
-export type RecommendationSeverity = 'good' | 'info' | 'warning' | 'urgent'
+// Re-export from the single source of truth in lib/intelligence/service.ts
+export type {
+  PersonaType,
+  RecommendationPriority,
+  RecommendationCategory,
+  RecommendationSeverity,
+  SummaryMetric,
+  Recommendation,
+  RecommendationResult,
+} from '@/lib/intelligence/service'
 
-export interface WeatherHour { time: string; tempC: number; code: number; precipProb: number; humidity: number; windKmh: number; precipitationMm: number }
-export interface WeatherSnapshot { temperatureC?: number; apparentTemperatureC?: number; precipitationProbability?: number; precipitationMm?: number; windSpeedKmh?: number; windGustKmh?: number; windDirection?: number; uvIndex?: number; weatherCode?: number; cloudCover?: number; visibilityKm?: number; hourly?: WeatherHour[]; timezone?: string }
-export interface AirQualitySnapshot { pm25?: number; usAqi?: number }
-export interface RecommendationInput { weather: WeatherSnapshot; airQuality?: AirQualitySnapshot; persona?: PersonaType; context?: { locationName?: string; humidity?: number } }
-export interface SummaryMetric { label: string; value: string; hint: string; iconName: string; tone: 'good' | 'warning' | 'urgent' | 'neutral' }
-export interface Recommendation { id: string; persona: PersonaType; priority: RecommendationPriority; category: RecommendationCategory; severity: RecommendationSeverity; title: string; guidance: string; whyThis: string; timeWindow?: string; weatherStat?: string; value?: string; iconName: string }
-export interface RecommendationResult { metrics: SummaryMetric[]; recommendations: Recommendation[] }
+export type RecommendationPersona = import('@/lib/intelligence/service').PersonaType
+
+export interface WeatherHour {
+  time: string
+  tempC: number
+  code: number
+  precipProb: number
+  humidity: number
+  windKmh: number
+  precipitationMm: number
+}
+
+export interface WeatherSnapshot {
+  temperatureC?: number
+  apparentTemperatureC?: number
+  precipitationProbability?: number
+  precipitationMm?: number
+  windSpeedKmh?: number
+  windGustKmh?: number
+  windDirection?: number
+  uvIndex?: number
+  weatherCode?: number
+  cloudCover?: number
+  visibilityKm?: number
+  hourly?: WeatherHour[]
+  timezone?: string
+}
+
+export interface AirQualitySnapshot {
+  pm25?: number
+  usAqi?: number
+}
+
+export interface RecommendationInput {
+  weather: WeatherSnapshot
+  airQuality?: AirQualitySnapshot
+  persona?: import('@/lib/intelligence/service').PersonaType
+  context?: { locationName?: string; humidity?: number }
+  units?: 'metric' | 'imperial'
+}
+
+import { generateRecommendations } from '@/lib/intelligence/service'
+import type { WeatherData } from '@/lib/weather/service'
+
+export function createRecommendationResult(input: RecommendationInput) {
+  const w = input.weather
+  const currentTemp = w.temperatureC ?? 25
+  const apparentTemp = w.apparentTemperatureC ?? currentTemp
+
+  // Construct minimal WeatherData to feed the single intelligence engine
+  const syntheticWeather: WeatherData = {
+    current: {
+      tempC: currentTemp,
+      apparentC: apparentTemp,
+      humidity: input.context?.humidity ?? 60,
+      windKmh: w.windSpeedKmh ?? 10,
+      windGustKmh: w.windGustKmh ?? w.windSpeedKmh ?? 12,
+      windDirection: w.windDirection ?? 180,
+      visibilityKm: w.visibilityKm ?? 10,
+      precipitation: w.precipitationMm ?? 0,
+      code: w.weatherCode ?? 0,
+      cloudCover: w.cloudCover ?? 20,
+      isDay: true,
+    },
+    hourly: (w.hourly ?? []).map((h) => ({
+      time: h.time,
+      label: new Intl.DateTimeFormat('en', { hour: 'numeric', hour12: true }).format(new Date(h.time)),
+      tempC: h.tempC,
+      code: h.code,
+      precipProb: h.precipProb,
+      humidity: h.humidity,
+      windKmh: h.windKmh,
+      precipitationMm: h.precipitationMm,
+    })),
+    daily: [
+      {
+        date: new Date().toISOString().slice(0, 10),
+        label: 'Today',
+        maxC: currentTemp + 4,
+        minC: currentTemp - 4,
+        code: w.weatherCode ?? 0,
+        precipProb: w.precipitationProbability ?? 0,
+        uvIndex: w.uvIndex ?? 5,
+        sunrise: '06:00',
+        sunset: '18:30',
+      },
+    ],
+    airQuality: {
+      usAqi: input.airQuality?.usAqi ?? 50,
+      pm25: input.airQuality?.pm25 ?? 15,
+    },
+    uvIndexMax: w.uvIndex ?? 5,
+    sunrise: '06:00',
+    sunset: '18:30',
+    timezone: w.timezone ?? 'Asia/Kolkata',
+  }
+
+  return generateRecommendations({
+    weather: syntheticWeather,
+    persona: input.persona,
+    locationName: input.context?.locationName,
+    units: input.units ?? 'metric',
+  })
+}
+
+export function createRecommendations(input: RecommendationInput) {
+  return createRecommendationResult(input).recommendations
+}
 
 const rainyCodes = new Set([51, 53, 55, 61, 63, 65, 80, 81, 82, 95, 96, 99])
-const isRain = (hour?: WeatherHour) => Boolean(hour && (rainyCodes.has(hour.code) || hour.precipProb >= 50 || hour.precipitationMm > 0.3))
-const fmtHour = (iso?: string) => iso ? new Intl.DateTimeFormat('en', { hour: 'numeric', hour12: true }).format(new Date(iso)) : 'now'
-const windowFor = (hours: WeatherHour[], predicate: (h: WeatherHour) => boolean) => { const matches = hours.filter(predicate); return matches.length ? `${fmtHour(matches[0].time)} – ${fmtHour(matches[Math.min(matches.length - 1, 3)].time)}` : 'No clear window'
+export function isRainy(code?: number, probability?: number) {
+  return (code !== undefined && rainyCodes.has(code)) || (probability ?? 0) >= 55
 }
-const add = (list: Recommendation[], item: Omit<Recommendation, 'id'>) => list.push({ ...item, id: `${item.persona}-${item.category}-${list.length + 1}` })
-
-export function createRecommendationResult(input: RecommendationInput): RecommendationResult {
-  const persona = input.persona ?? 'traveler'; const w = input.weather; const hours = w.hourly ?? []; const aqi = input.airQuality?.usAqi; const temp = w.apparentTemperatureC ?? w.temperatureC ?? 0; const rainPeak = Math.max(w.precipitationProbability ?? 0, ...hours.slice(0, 24).map((h) => h.precipProb)); const location = input.context?.locationName ?? 'your location'; const aqiValue = aqi ?? 0; const recommendations: Recommendation[] = []
-  const metrics: SummaryMetric[] = []
-  const comfortable = temp >= 20 && temp <= 28 && (input.context?.humidity ?? 55) <= 75 && (aqi ?? 0) < 100
-  const nextDry = windowFor(hours.slice(0, 12), (h) => !isRain(h) && h.windKmh < 25)
-
-  if (persona === 'student') {
-    const transit = hours.filter((h) => { const hour = new Date(h.time).getHours(); return (hour >= 7 && hour <= 9) || (hour >= 14 && hour <= 17) })
-    const transitRain = Math.max(0, ...transit.map((h) => h.precipProb)); metrics.push({ label: 'Study comfort', value: comfortable ? 'Optimal' : temp >= 32 ? 'Heat caution' : 'Indoor preferred', hint: `Feels ${Math.round(temp)}°${aqi ? ` · AQI ${Math.round(aqi)}` : ''}`, iconName: 'graduation', tone: comfortable ? 'good' : 'warning' }, { label: 'Commute rain chance', value: `${transitRain}%`, hint: 'Class transit windows', iconName: 'umbrella', tone: transitRain >= 50 ? 'warning' : 'good' }, { label: 'Best outdoor window', value: nextDry, hint: 'Dry and calmer hours', iconName: 'sun', tone: 'neutral' })
-    add(recommendations, { persona, priority: transitRain >= 60 ? 'high' : 'medium', category: 'academic', severity: transitRain >= 60 ? 'warning' : 'good', title: transitRain >= 60 ? 'Protect the campus commute' : 'Campus conditions look manageable', guidance: transitRain >= 60 ? 'Pack an umbrella and waterproof backpack cover, then allow extra time between classes.' : `The forecast supports a workable commute around ${location}.`, whyThis: `Transit-hour rain probability peaks at ${transitRain}%.`, timeWindow: '7–9 AM · 2–5 PM', weatherStat: `${transitRain}% rain chance`, iconName: 'umbrella' })
-    if (temp >= 32 || (w.uvIndex ?? 0) >= 6) add(recommendations, { persona, priority: 'high', category: 'health', severity: 'warning', title: 'Plan shaded campus routes', guidance: 'Use shade, carry water, and schedule longer walks outside the hottest period.', whyThis: `Feels like ${Math.round(temp)}° with UV ${Math.round(w.uvIndex ?? 0)}.`, timeWindow: 'Late morning – mid-afternoon', weatherStat: `Feels ${Math.round(temp)}°`, iconName: 'sun' })
-  } else if (persona === 'farmer') {
-    const mm = hours.slice(0, 24).reduce((sum, h) => sum + h.precipitationMm, 0); const calm = (w.windSpeedKmh ?? 0) < 15 && (w.windGustKmh ?? 0) < 25; metrics.push({ label: 'Irrigation outlook', value: rainPeak >= 50 || mm > 2 ? 'Pause irrigation' : 'Normal watering', hint: `${Math.round(mm * 10) / 10} mm next 24h`, iconName: 'droplets', tone: rainPeak >= 50 || mm > 2 ? 'warning' : 'good' }, { label: 'Spraying suitability', value: calm && rainPeak < 30 ? 'Favorable' : 'Unfavorable', hint: `Wind ${Math.round(w.windSpeedKmh ?? 0)} km/h`, iconName: 'sprout', tone: calm && rainPeak < 30 ? 'good' : 'warning' }, { label: 'Field work comfort', value: temp > 34 ? 'High heat stress' : 'Good until midday', hint: `Feels ${Math.round(temp)}°`, iconName: 'sun', tone: temp > 34 ? 'urgent' : 'good' })
-    add(recommendations, { persona, priority: rainPeak >= 50 || mm > 2 ? 'high' : 'medium', category: 'agriculture', severity: rainPeak >= 50 || mm > 2 ? 'warning' : 'good', title: rainPeak >= 50 || mm > 2 ? 'Pause irrigation' : 'Normal watering is reasonable', guidance: rainPeak >= 50 || mm > 2 ? 'Rain is expected soon; delay irrigation and inspect drainage first.' : 'No meaningful rainfall signal is present in the next 24 hours, so follow your normal watering plan.', whyThis: `${Math.round(mm * 10) / 10} mm and a peak ${rainPeak}% rain probability are forecast.`, weatherStat: `${rainPeak}% rain · ${Math.round(mm * 10) / 10} mm`, iconName: 'droplets' })
-    add(recommendations, { persona, priority: calm && rainPeak < 30 ? 'medium' : 'high', category: 'timing', severity: calm && rainPeak < 30 ? 'good' : 'warning', title: calm ? 'Spraying window is favorable' : 'Hold chemical application', guidance: calm ? `The calmer window around ${nextDry} is the best time for spraying.` : 'Wind or rain could reduce application accuracy; wait for a calmer, dry period.', whyThis: `Wind ${Math.round(w.windSpeedKmh ?? 0)} km/h, gusts ${Math.round(w.windGustKmh ?? 0)} km/h, rain peak ${rainPeak}%.`, timeWindow: nextDry, weatherStat: `Wind ${Math.round(w.windSpeedKmh ?? 0)} km/h`, iconName: 'sprout' })
-  } else if (persona === 'commuter') {
-    const rush = hours.filter((h) => { const hour = new Date(h.time).getHours(); return (hour >= 8 && hour <= 10) || (hour >= 17 && hour <= 20) }); const rushRain = Math.max(0, ...rush.map((h) => h.precipProb)); const slick = rushRain >= 45 || (w.visibilityKm ?? 10) < 5; metrics.push({ label: 'Commute conditions', value: slick ? 'Slick roads expected' : 'Clear roads', hint: `Visibility ${w.visibilityKm ?? '—'} km`, iconName: 'car', tone: slick ? 'warning' : 'good' }, { label: 'Peak rain window', value: `${rushRain}%`, hint: 'Morning and evening rush', iconName: 'umbrella', tone: rushRain >= 50 ? 'warning' : 'good' }, { label: 'Wind & visibility', value: `${w.visibilityKm ?? '—'} km · ${Math.round(w.windSpeedKmh ?? 0)} km/h`, hint: 'Current conditions', iconName: 'wind', tone: 'neutral' })
-    add(recommendations, { persona, priority: slick ? 'high' : 'medium', category: 'commute', severity: slick ? 'warning' : 'good', title: slick ? 'Allow extra travel time' : 'Commute conditions are manageable', guidance: slick ? 'Use extra braking distance, avoid standing water, and leave earlier for rush-hour travel.' : 'Road-risk signals are currently limited. Keep checking before departure.', whyThis: `Rush-hour rain peaks at ${rushRain}% with ${w.visibilityKm ?? 'unknown'} km visibility.`, timeWindow: '8–10 AM · 5–8 PM', weatherStat: `${rushRain}% rain`, iconName: 'car' })
-  } else {
-    const score = Math.max(0, Math.min(10, 10 - rainPeak / 15 - Math.max(0, temp - 30) / 2 - (aqiValue > 100 ? 2 : 0))); metrics.push({ label: 'Sightseeing index', value: `${score.toFixed(1)} / 10`, hint: score >= 7 ? 'Favorable' : 'Indoor preferred', iconName: 'compass', tone: score >= 7 ? 'good' : 'warning' }, { label: 'Prime outdoor window', value: nextDry, hint: 'Milder, drier hours', iconName: 'sun', tone: 'neutral' }, { label: 'UV & heat exposure', value: `UV ${Math.round(w.uvIndex ?? 0)} · ${Math.round(w.temperatureC ?? temp)}°`, hint: 'Prepare accordingly', iconName: 'sun', tone: (w.uvIndex ?? 0) >= 6 || temp >= 32 ? 'warning' : 'good' })
-    add(recommendations, { persona, priority: score < 5 ? 'high' : 'medium', category: 'leisure', severity: score < 5 ? 'warning' : 'good', title: score < 5 ? 'Keep indoor alternatives ready' : 'Good window for exploring', guidance: score < 5 ? 'Plan museums, cafés, or covered cultural activities during the wetter or hotter hours.' : `Outdoor sightseeing around ${location} is supported during ${nextDry}.`, whyThis: `The score uses rain probability, temperature, cloud cover, and air quality.`, timeWindow: nextDry, weatherStat: `${score.toFixed(1)} / 10`, iconName: 'compass' })
-  }
-  if (aqiValue > 100) add(recommendations, { persona, priority: aqiValue > 150 ? 'high' : 'medium', category: 'health', severity: aqiValue > 150 ? 'urgent' : 'warning', title: 'Air quality needs attention', guidance: 'Reduce prolonged outdoor exertion and favor indoor plans if you have respiratory concerns.', whyThis: `Current US AQI is ${Math.round(aqiValue)}.`, weatherStat: `AQI ${Math.round(aqiValue)}`, iconName: 'health' })
-  return { metrics, recommendations: recommendations.sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.priority] - { high: 0, medium: 1, low: 2 }[b.priority])) }
-}
-
-export function createRecommendations(input: RecommendationInput): Recommendation[] { return createRecommendationResult(input).recommendations }
-export function isRainy(code?: number, probability?: number) { return (code !== undefined && rainyCodes.has(code)) || (probability ?? 0) >= 55 }

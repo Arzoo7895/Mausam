@@ -1,5 +1,8 @@
 import { AlertsDashboard } from '@/components/alerts-dashboard/index.tsx'
-import { getAlerts, getNotificationSettings } from '@/lib/alerts/service'
+import { getUserAlertsServer, getAlertPreferencesServer } from '@/lib/actions/alerts'
+import { getNotificationSettings } from '@/lib/alerts/service'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Alerts & Notifications | Mausam AI',
@@ -7,6 +10,19 @@ export const metadata = {
 }
 
 export default async function AlertsPage() {
-  const [alerts, settings] = await Promise.all([getAlerts(), getNotificationSettings()])
-  return <AlertsDashboard initialAlerts={alerts} initialSettings={settings} />
+  const [userAlertsData, prefData, fallbackSettings] = await Promise.all([
+    getUserAlertsServer(),
+    getAlertPreferencesServer(),
+    getNotificationSettings(),
+  ])
+
+  return (
+    <AlertsDashboard
+      initialAlerts={userAlertsData.alerts}
+      initialSettings={fallbackSettings}
+      initialPreferences={prefData.preferences}
+      initialLocation={userAlertsData.location}
+      initialAuthenticated={userAlertsData.authenticated}
+    />
+  )
 }

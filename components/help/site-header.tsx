@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Logo } from '@/components/help/logo'
 import { SearchDialog } from '@/components/help/search-dialog'
 import { ThemeToggle } from '@/components/help/theme-toggle'
+import { LanguageSwitcher } from '@/components/language-switcher'
 
 const nav = [
   { label: 'Help Center', href: '/help-center' },
@@ -31,6 +32,7 @@ export function SiteHeader() {
           </nav>
         </div>
         <div className="flex items-center gap-1.5">
+          <LanguageSwitcher className="hidden sm:inline-flex" />
           <SearchDialog />
           <ThemeToggle />
           <Link

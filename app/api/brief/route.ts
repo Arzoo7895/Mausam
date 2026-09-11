@@ -1,18 +1,41 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getWeather, weatherCodeInfo } from '@/lib/weather/service'
-import { createRecommendations } from '@/lib/recommendations'
+import { getWeather } from '@/lib/weather/service'
+import { getAlerts } from '@/lib/alerts/service'
+import { generateDailyBrief, type PersonaType, type UnitPreference } from '@/lib/intelligence/service'
 
-const inputSchema = z.object({ latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180) })
+const inputSchema = z.object({
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  name: z.string().max(150).optional(),
+  persona: z.enum(['student', 'farmer', 'commuter', 'traveler']).optional(),
+  units: z.enum(['metric', 'imperial']).optional(),
+  userName: z.string().max(100).optional(),
+})
 
 export async function POST(request: Request) {
   try {
-    const input = inputSchema.parse(await request.json())
-    const weather = await getWeather(input.latitude, input.longitude)
-    const recommendations = createRecommendations({ weather: { temperatureC: weather.current.tempC, apparentTemperatureC: weather.current.apparentC, precipitationProbability: weather.daily[0]?.precipProb, windSpeedKmh: weather.current.windKmh, uvIndex: weather.uvIndexMax, weatherCode: weather.current.code }, airQuality: weather.airQuality })
-    const condition = weatherCodeInfo(weather.current.code).label.toLowerCase()
-    const rain = weather.daily[0]?.precipProb ?? 0
-    return NextResponse.json({ summary: `It is ${weather.current.tempC}° and ${condition} with a ${rain}% chance of rain today.`, highlights: recommendations.filter((item) => item.severity === 'good' || item.severity === 'info').slice(0, 3).map((item) => item.title), risks: recommendations.filter((item) => item.severity === 'warning' || item.severity === 'urgent').slice(0, 3).map((item) => item.title), recommendations: recommendations.slice(0, 3).map((item) => item.guidance), generatedAt: new Date().toISOString() }, { headers: { 'Cache-Control': 'private, max-age=300' } })
+    const json = await request.json()
+    const input = inputSchema.parse(json)
+    const locationName = input.name || 'Current location'
+
+    const [weather, alerts] = await Promise.all([
+      getWeather(input.latitude, input.longitude),
+      getAlerts({ latitude: input.latitude, longitude: input.longitude, name: locationName }),
+    ])
+
+    const brief = generateDailyBrief({
+      weather,
+      alerts,
+      persona: input.persona as PersonaType | undefined,
+      userName: input.userName,
+      locationName,
+      units: input.units as UnitPreference | undefined,
+    })
+
+    return NextResponse.json(brief, {
+      headers: { 'Cache-Control': 'private, max-age=300' },
+    })
   } catch (error) {
     if (error instanceof z.ZodError) return NextResponse.json({ error: 'INVALID_INPUT' }, { status: 400 })
     return NextResponse.json({ error: 'WEATHER_PROVIDER_UNAVAILABLE' }, { status: 502 })

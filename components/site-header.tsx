@@ -5,7 +5,9 @@ import { Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Logo } from '@/components/mausam/logo'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { LanguageSwitcher } from '@/components/language-switcher'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/lib/i18n'
 
 const navLinks = [
   { label: 'How it works', href: '#how-it-works' },
@@ -16,6 +18,7 @@ const navLinks = [
 ]
 
 export function SiteHeader() {
+  const { t } = useI18n()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -67,6 +70,7 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex items-center gap-1.5">
+            <LanguageSwitcher className="hidden sm:inline-flex" />
             <ThemeToggle />
             <Button
               size="sm"
@@ -75,7 +79,7 @@ export function SiteHeader() {
               className="hidden sm:inline-flex"
               render={<a href="/login" />}
             >
-              Log in
+              {t('nav.login')}
             </Button>
             <Button
               size="sm"
@@ -83,7 +87,7 @@ export function SiteHeader() {
               className="hidden sm:inline-flex"
               render={<a href="/auth/sign-up" />}
             >
-              Get Started
+              {t('nav.getStarted')}
             </Button>
             <Button
               variant="ghost"
