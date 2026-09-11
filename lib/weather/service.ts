@@ -94,7 +94,7 @@ export function weatherCodeInfo(code: number): WeatherCodeInfo {
 export async function searchLocations(query: string, signal?: AbortSignal): Promise<GeoLocation[]> {
   const q = query.trim()
   if (q.length < 2) return []
-  const url = `${GEOCODE_URL}?name=${encodeURIComponent(q)}&count=8&language=en&format=json`
+  const url = `${GEOCODE_URL}?name=${encodeURIComponent(q)}&count=10&language=en&countryCode=IN&format=json`
   const res = await fetch(url, { signal })
   if (!res.ok) throw new Error('Location search failed')
   const data = await res.json()
@@ -108,9 +108,7 @@ export async function searchLocations(query: string, signal?: AbortSignal): Prom
     latitude: r.latitude,
     longitude: r.longitude,
   })) as GeoLocation[]
-  return results
-    .sort((a, b) => Number(b.countryCode?.toLowerCase() === 'in') - Number(a.countryCode?.toLowerCase() === 'in'))
-    .filter((location, index, all) => index < 5 || location.countryCode?.toLowerCase() === 'in' || all.slice(0, 5).some((item) => item.countryCode?.toLowerCase() === 'in'))
+  return results.filter((location) => location.countryCode?.toLowerCase() === 'in')
 }
 
 export async function reverseGeocode(latitude: number, longitude: number): Promise<GeoLocation> {

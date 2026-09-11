@@ -114,13 +114,13 @@ export function LocationSearchDialog({ open, onClose, onSelect }: Props) {
 
           {!loading && !error && results.length === 0 && touched && query.trim().length >= 2 && (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              No places found for &ldquo;{query.trim()}&rdquo;. Try another spelling.
+              No matching Indian location found for &ldquo;{query.trim()}&rdquo;. Try another spelling.
             </p>
           )}
 
           {!loading && !error && !touched && (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              Start typing to find any city in the world.
+              Start typing to find a city, district, town, or locality in India.
             </p>
           )}
 
