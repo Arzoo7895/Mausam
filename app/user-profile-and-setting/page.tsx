@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { createClient } from '@/lib/supabase/client'
+import { useI18n, type Language } from '@/lib/i18n'
 import {
   Bell,
   Check,
@@ -43,6 +44,7 @@ type SettingsState = {
   severeWeather: boolean
   units: 'metric' | 'imperial'
   theme: 'light' | 'dark' | 'system'
+  language: Language
 }
 
 const initialSettings: SettingsState = {
@@ -55,6 +57,7 @@ const initialSettings: SettingsState = {
   severeWeather: true,
   units: 'metric',
   theme: 'system',
+  language: 'en',
 }
 
 const navItems: { id: Section; label: string; icon: typeof UserRound }[] = [
@@ -73,6 +76,7 @@ export default function Page() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const router = useRouter()
   const { setTheme } = useTheme()
+  const { language, setLanguage, options } = useI18n()
 
   useEffect(() => {
     const stored = window.localStorage.getItem('mausam-settings')
@@ -83,6 +87,12 @@ export default function Page() {
     if (settings.theme !== 'system') setTheme(settings.theme)
     else setTheme('system')
   }, [settings.theme, setTheme])
+
+  useEffect(() => {
+    if (settings.language !== language) {
+      setSettings((current) => ({ ...current, language }))
+    }
+  }, [language, settings.language])
 
   const activeItem = useMemo(() => navItems.find((item) => item.id === section), [section])
 
@@ -158,7 +168,7 @@ export default function Page() {
             {section === 'preferences' && <PreferencesSection settings={settings} updateSettings={updateSettings} />}
             {section === 'account' && <AccountSection draftKey={draftKey} setDraftKey={setDraftKey} showKey={showKey} setShowKey={setShowKey} />}
 
-            <div className="mt-8 flex flex-col items-stretch justify-between gap-4 border-t border-border pt-6 sm:flex-row sm:items-center"><p className="text-xs text-muted-foreground">Changes are saved locally to this device.</p><button onClick={saveSettings} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-transform hover:-translate-y-0.5">{saved ? <Check aria-hidden="true" /> : <Save aria-hidden="true" />}{saved ? 'Saved' : 'Save changes'}</button></div>
+            <div className="mt-8 flex flex-col items-stretch justify-between gap-4 border-t border-border pt-6 sm:flex-row sm:items-center"><label className="flex items-center gap-2 text-sm text-muted-foreground"><span>Language</span><select value={settings.language ?? language} onChange={(event) => { const next = event.target.value as Language; updateSettings({ language: next }); setLanguage(next) }} className="rounded-lg border border-input bg-background px-2 py-1.5 text-sm text-foreground"><option value="en">English</option>{options.filter(([code]) => code !== 'en').map(([code, native]) => <option key={code} value={code}>{native}</option>)}</select></label><div className="flex items-center justify-between gap-4"><p className="text-xs text-muted-foreground">Changes are saved locally to this device.</p><button onClick={saveSettings} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-transform hover:-translate-y-0.5">{saved ? <Check aria-hidden="true" /> : <Save aria-hidden="true" />}{saved ? 'Saved' : 'Save changes'}</button></div></div>
           </div>
         </section>
       </div>

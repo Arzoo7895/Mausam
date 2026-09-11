@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useMemo } from 'react'
-import { ArrowLeft, CloudRain, Droplets, Eye, Gauge, Loader2, MapPin, RefreshCw, Sun, Thermometer, Wind } from 'lucide-react'
+import { ArrowLeft, Cloud, CloudFog, CloudRain, CloudSnow, Droplets, Eye, Gauge, Loader2, MapPin, Moon, RefreshCw, Sun, Thermometer, Wind } from 'lucide-react'
 import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useLocations } from '@/lib/weather/use-locations'
 import { useWeather } from '@/lib/weather/use-weather'
@@ -22,4 +22,4 @@ export default function ForecastDetailsPage() {
 }
 
 function Metric({ icon: Icon, label, value, detail }: { icon: typeof Thermometer; label: string; value: string; detail: string }) { return <div className="rounded-2xl border border-border bg-card p-4"><Icon size={18} className="text-primary"/><p className="mt-4 text-xs text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p><p className="mt-1 text-xs text-muted-foreground">{detail}</p></div> }
-function WeatherIcon({ code }: { code: number }) { const icon = weatherCodeInfo(code).icon; return icon === 'rain' ? <CloudRain size={20}/> : icon === 'sun' ? <Sun size={20}/> : <CloudRain size={20}/> }
+function WeatherIcon({ code, isDay = true }: { code: number; isDay?: boolean }) { const icon = weatherCodeInfo(code).icon; if (icon === 'rain') return <CloudRain size={20} />; if (icon === 'snow') return <CloudSnow size={20} />; if (icon === 'fog') return <CloudFog size={20} />; if (icon === 'cloud') return <Cloud size={20} />; return isDay ? <Sun size={20} /> : <Moon size={20} /> }

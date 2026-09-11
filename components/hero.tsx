@@ -82,7 +82,7 @@ export function Hero() {
               variant="outline"
               nativeButton={false}
               className="h-11 px-5 text-sm"
-              render={<a href="/dashboard" />}
+              onClick={() => { window.location.href = '/tutorial' }}
             >
               Try live demo
             </Button>

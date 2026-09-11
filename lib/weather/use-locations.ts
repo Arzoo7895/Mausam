@@ -6,17 +6,13 @@ import { type GeoLocation, locationKey } from './service'
 const STORAGE_KEY = 'mausam:locations'
 const ACTIVE_KEY = 'mausam:active'
 
-export const DEFAULT_LOCATIONS: GeoLocation[] = [
-  { id: '1261481', name: 'New Delhi', region: 'Delhi', country: 'India', countryCode: 'IN', latitude: 28.6139, longitude: 77.209 },
-  { id: '1277333', name: 'Bengaluru', region: 'Karnataka', country: 'India', countryCode: 'IN', latitude: 12.9716, longitude: 77.5946 },
-  { id: '1275339', name: 'Mumbai', region: 'Maharashtra', country: 'India', countryCode: 'IN', latitude: 19.076, longitude: 72.8777 },
-]
+export const DEFAULT_LOCATIONS: GeoLocation[] = []
 
 type State = { locations: GeoLocation[]; activeKey: string }
 
 let state: State = {
   locations: DEFAULT_LOCATIONS,
-  activeKey: locationKey(DEFAULT_LOCATIONS[0]),
+  activeKey: '',
 }
 let hydrated = false
 
@@ -76,7 +72,7 @@ function getSnapshot(): State {
   return state
 }
 
-const SERVER_STATE: State = { locations: DEFAULT_LOCATIONS, activeKey: locationKey(DEFAULT_LOCATIONS[0]) }
+const SERVER_STATE: State = { locations: DEFAULT_LOCATIONS, activeKey: '' }
 
 function getServerSnapshot(): State {
   return SERVER_STATE
@@ -124,7 +120,7 @@ export function setActive(key: string) {
 export function useLocations() {
   const snap = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
   const active =
-    snap.locations.find((l) => locationKey(l) === snap.activeKey) ?? snap.locations[0] ?? DEFAULT_LOCATIONS[0]
+    snap.locations.find((l) => locationKey(l) === snap.activeKey) ?? snap.locations[0]
   return {
     locations: snap.locations,
     active,
