@@ -13,7 +13,6 @@ import {
   CloudSun,
   Eye,
   EyeOff,
-  HelpCircle,
   KeyRound,
   LayoutDashboard,
   LifeBuoy,
@@ -74,6 +73,8 @@ export default function Page() {
   const [showKey, setShowKey] = useState(false)
   const [saved, setSaved] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const [deletionRequested, setDeletionRequested] = useState(false)
   const router = useRouter()
   const { setTheme } = useTheme()
   const { language, setLanguage, options } = useI18n()
@@ -135,7 +136,6 @@ export default function Page() {
             </nav>
           </div>
           <div className="border-t border-border pt-4">
-            <Link href="/help-center" className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"><HelpCircle aria-hidden="true" /> Help center</Link>
             <div className="mt-4 flex items-center gap-3 rounded-xl bg-background/70 p-3">
               <div className="flex size-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">AM</div>
               <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">Arjun Mehta</p><p className="truncate text-xs text-muted-foreground">Personal workspace</p></div>
@@ -157,7 +157,7 @@ export default function Page() {
           </header>
 
           <div className="mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-12 lg:px-12">
-            <div className="mb-8 flex items-start justify-between gap-4"><div><div className="mb-3 inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground"><Settings aria-hidden="true" /> Workspace settings</div><h2 className="text-balance text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Make Mausam yours.</h2><p className="mt-3 max-w-xl text-pretty leading-6 text-muted-foreground">Tune your weather intelligence experience, profile, and alerts from one calm, focused place.</p></div><button className="hidden items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium shadow-sm hover:bg-accent sm:flex"><Eye aria-hidden="true" /> Preview</button></div>
+            <div className="mb-8 flex items-start justify-between gap-4"><div><div className="mb-3 inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground"><Settings aria-hidden="true" /> Workspace settings</div><h2 className="text-balance text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Make Mausam yours.</h2><p className="mt-3 max-w-xl text-pretty leading-6 text-muted-foreground">Tune your weather intelligence experience, profile, and alerts from one calm, focused place.</p></div><div className="relative"><button aria-label="Profile actions" onClick={() => setProfileMenuOpen((open) => !open)} className="rounded-lg border border-border bg-card p-2 shadow-sm hover:bg-accent"><MoreHorizontal aria-hidden="true" /></button>{profileMenuOpen && <div className="absolute right-0 top-12 z-10 w-52 rounded-xl border border-border bg-card p-2 shadow-lg"><button className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-accent" onClick={() => setSection('profile')}>Edit profile</button><button className="w-full rounded-lg px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10" onClick={() => { setProfileMenuOpen(false); setDeletionRequested(true) }}>Request account deletion</button></div>}</div></div>{deletionRequested && <div className="mb-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4" role="alertdialog" aria-label="Request account deletion"><p className="text-sm font-medium">Request account deletion?</p><p className="mt-1 text-sm text-muted-foreground">This will start a 30-day deletion review. No account data is deleted from this local demo.</p><div className="mt-3 flex gap-2"><button className="rounded-lg border border-border bg-background px-3 py-2 text-sm" onClick={() => setDeletionRequested(false)}>Cancel</button><button className="rounded-lg bg-destructive px-3 py-2 text-sm text-destructive-foreground" onClick={() => setDeletionRequested(false)}>Acknowledge request</button></div></div>}
 
             <div className="mb-8 flex gap-1 overflow-x-auto rounded-xl border border-border bg-muted/40 p-1" role="tablist" aria-label="Settings sections">
               {navItems.map((item) => <button key={item.id} onClick={() => selectSection(item.id)} className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${section === item.id ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`} role="tab" aria-selected={section === item.id}><item.icon aria-hidden="true" />{item.label}</button>)}

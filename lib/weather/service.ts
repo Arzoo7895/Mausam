@@ -99,7 +99,7 @@ export async function searchLocations(query: string, signal?: AbortSignal): Prom
   if (!res.ok) throw new Error('Location search failed')
   const data = await res.json()
   if (!Array.isArray(data.results)) return []
-  return data.results.map((r: any) => ({
+  const results = data.results.map((r: any) => ({
     id: String(r.id),
     name: r.name,
     region: r.admin1,
@@ -107,7 +107,10 @@ export async function searchLocations(query: string, signal?: AbortSignal): Prom
     countryCode: r.country_code,
     latitude: r.latitude,
     longitude: r.longitude,
-  }))
+  })) as GeoLocation[]
+  return results
+    .sort((a, b) => Number(b.countryCode?.toLowerCase() === 'in') - Number(a.countryCode?.toLowerCase() === 'in'))
+    .filter((location, index, all) => index < 5 || location.countryCode?.toLowerCase() === 'in' || all.slice(0, 5).some((item) => item.countryCode?.toLowerCase() === 'in'))
 }
 
 export async function reverseGeocode(latitude: number, longitude: number): Promise<GeoLocation> {

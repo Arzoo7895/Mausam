@@ -13,12 +13,20 @@ export const languageOptions = [
   ['te', 'తెలుగు', 'Telugu'],
   ['kn', 'ಕನ್ನಡ', 'Kannada'],
   ['ml', 'മലയാളം', 'Malayalam'],
+  ['or', 'ଓଡ଼ିଆ', 'Odia'],
+  ['as', 'অসমীয়া', 'Assamese'],
+  ['ur', 'اردو', 'Urdu'],
+  ['kok', 'कोंकणी', 'Konkani'],
+  ['mai', 'मैथिली', 'Maithili'],
+  ['sa', 'संस्कृतम्', 'Sanskrit'],
+  ['ne', 'नेपाली', 'Nepali'],
+  ['sd', 'सिन्धी', 'Sindhi'],
 ] as const
 
 export type Language = (typeof languageOptions)[number][0]
 type Messages = Record<string, string>
 
-const messages: Record<Language, Messages> = {
+const messages: Partial<Record<Language, Messages>> = {
   en: { dashboard: 'Dashboard', overview: 'Overview', insights: 'Insights', forecast: 'Forecast', locations: 'Locations', recommendations: 'AI Recommendations', alerts: 'Alerts', settings: 'Settings', help: 'Help Center', search: 'Search', refresh: 'Refresh', useLocation: 'Use my location', loading: 'Loading weather data', retry: 'Try again', language: 'Language', save: 'Save changes' },
   hi: { dashboard: 'डैशबोर्ड', overview: 'अवलोकन', insights: 'जानकारियाँ', forecast: 'पूर्वानुमान', locations: 'स्थान', recommendations: 'AI सुझाव', alerts: 'अलर्ट', settings: 'सेटिंग्स', help: 'सहायता केंद्र', search: 'खोजें', refresh: 'रिफ्रेश', useLocation: 'मेरा स्थान उपयोग करें', loading: 'मौसम डेटा लोड हो रहा है', retry: 'फिर प्रयास करें', language: 'भाषा', save: 'बदलाव सहेजें' },
   bn: { dashboard: 'ড্যাশবোর্ড', overview: 'ওভারভিউ', insights: 'অন্তর্দৃষ্টি', forecast: 'পূর্বাভাস', locations: 'অবস্থান', recommendations: 'AI পরামর্শ', alerts: 'সতর্কতা', settings: 'সেটিংস', help: 'সহায়তা কেন্দ্র', search: 'অনুসন্ধান', refresh: 'রিফ্রেশ', useLocation: 'আমার অবস্থান ব্যবহার করুন', loading: 'আবহাওয়ার তথ্য লোড হচ্ছে', retry: 'আবার চেষ্টা করুন', language: 'ভাষা', save: 'পরিবর্তন সংরক্ষণ করুন' },
@@ -45,7 +53,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     window.localStorage.setItem('mausam-language', next)
     document.documentElement.lang = next
   }
-  const value = useMemo(() => ({ language, setLanguage, t: (key: string) => messages[language][key] ?? messages.en[key] ?? key, options: languageOptions }), [language])
+  const value = useMemo(() => ({ language, setLanguage, t: (key: string) => messages[language]?.[key] ?? messages.en?.[key] ?? key, options: languageOptions }), [language])
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
 }
 
