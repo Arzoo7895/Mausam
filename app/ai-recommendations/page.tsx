@@ -1,7 +1,23 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowLeft, MapPin, Sparkles } from 'lucide-react'
+import {
+  ArrowLeft,
+  MapPin,
+  GraduationCap,
+  Sprout,
+  Car,
+  Compass,
+  HeartPulse,
+  Umbrella,
+  Wind,
+  Sun,
+  Droplets,
+  RefreshCw,
+  Loader2,
+  X,
+} from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocations } from '@/lib/weather/use-locations'
 import { useWeather } from '@/lib/weather/use-weather'
 import {
@@ -154,7 +170,18 @@ export default function AIRecommendationsPage() {
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" role="group" aria-label="Recommendation persona">
-          {personas.map((item) => <button key={item.id} onClick={() => setPersona(item.id)} className={`rounded-2xl border p-4 text-left ${persona === item.id ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card hover:bg-muted'}`}>{item.label}</button>)}
+          {personas.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setPreferred(item.id)}
+              className={`rounded-2xl border p-4 text-left ${currentPersona === item.id
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-card hover:bg-muted'
+                }`}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
 
         {error && (
