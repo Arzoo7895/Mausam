@@ -24,13 +24,21 @@ export function SocialAuth({ onError }: { onError?: (message: string) => void })
       if (error) throw error
       // On success the browser is redirected to the provider, so we keep the
       // pending state until navigation happens.
-    } catch (err) {
+    } catch (err: unknown) {
       setPending(null)
-      onError?.(
-        err instanceof Error
-          ? `Could not connect to ${provider}. Please try again.`
-          : "Something went wrong. Please try again.",
-      )
+      const errObj = err as { message?: string; status?: number }
+      const msg = errObj?.message?.toLowerCase?.() || ""
+      let friendlyMessage = `Could not connect to ${provider === "google" ? "Google" : "GitHub"}. Please try again.`
+
+      if (msg.includes("provider is not enabled") || msg.includes("unsupported provider")) {
+        friendlyMessage = `${provider === "google" ? "Google" : "GitHub"} sign-in is not enabled in your Supabase project settings.`
+      } else if (msg.includes("api key") || msg.includes("jwt")) {
+        friendlyMessage = "Authentication service configuration error. Please check Supabase API keys."
+      } else if (errObj?.message) {
+        friendlyMessage = errObj.message
+      }
+
+      onError?.(friendlyMessage)
     }
   }
 

@@ -29,6 +29,7 @@ import { getAlerts, type WeatherAlert } from '@/lib/alerts/service'
 import { useProfile } from '@/lib/profile-context'
 import { useI18n } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { GuestAuthModal } from '@/components/guest-auth-modal'
 
 const personas: { id: PersonaType; label: string; hint: string }[] = [
   { id: 'student', label: 'Student', hint: 'Classes & study' },
@@ -69,12 +70,13 @@ const metricIcons = {
 
 export default function AIRecommendationsPage() {
   const { active } = useLocations()
-  const { preferences, saveProfile } = useProfile()
+  const { preferences, saveProfile, isGuest } = useProfile()
   const { t } = useI18n()
 
   const currentPersona = (preferences.persona as PersonaType) || 'traveler'
   const [dismissed, setDismissed] = useState<string[]>([])
   const [alerts, setAlerts] = useState<WeatherAlert[]>([])
+  const [guestModalOpen, setGuestModalOpen] = useState(false)
 
   const { data, loading, error, refresh } = useWeather(active?.latitude, active?.longitude)
 
@@ -109,7 +111,11 @@ export default function AIRecommendationsPage() {
   const visible = result?.recommendations.filter((item) => !dismissed.includes(item.id)) ?? []
 
   const setPreferred = async (value: PersonaType) => {
-    // Save to user profile (Supabase for authenticated users, localStorage for guests)
+    if (isGuest) {
+      setGuestModalOpen(true)
+      return
+    }
+    // Save to user profile for authenticated users
     await saveProfile({ persona: value })
   }
 
@@ -264,6 +270,13 @@ export default function AIRecommendationsPage() {
           )
         )}
       </div>
+      <GuestAuthModal
+        open={guestModalOpen}
+        onClose={() => setGuestModalOpen(false)}
+        featureName="Custom AI Persona"
+        title="Sign up to customize your routine"
+        description="Save your preferred routine persona (Student, Farmer, Commuter, Traveler) to get personalized AI weather intelligence every day."
+      />
     </main>
   )
 }

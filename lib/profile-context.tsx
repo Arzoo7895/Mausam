@@ -87,19 +87,17 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
 
       if (authError || !authUser) {
         setUser(null)
-        // Check if there are locally cached guest preferences
+        // Guest mode must never read or display an authenticated user's profile name
+        setProfile(GUEST_PROFILE)
         try {
           const local = window.localStorage.getItem('mausam-guest-profile')
           if (local) {
             const parsed = JSON.parse(local)
-            setProfile(parsed.profile ?? GUEST_PROFILE)
             setPreferences(parsed.preferences ?? GUEST_PREFERENCES)
           } else {
-            setProfile(GUEST_PROFILE)
             setPreferences(GUEST_PREFERENCES)
           }
         } catch {
-          setProfile(GUEST_PROFILE)
           setPreferences(GUEST_PREFERENCES)
         }
         setLoading(false)
@@ -117,8 +115,13 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       const pData = profileRes.data
       const prefData = prefRes.data
 
+      // public.profiles is the primary source of truth for the user's name
+      const resolvedName = (pData?.full_name !== undefined && pData?.full_name !== null && pData.full_name.trim() !== '')
+        ? pData.full_name.trim()
+        : (authUser.user_metadata?.full_name?.trim() || '')
+
       const loadedProfile: UserProfile = {
-        fullName: pData?.full_name || authUser.user_metadata?.full_name || '',
+        fullName: resolvedName,
         email: authUser.email || '',
         homeLocation: pData?.home_location || '',
         bio: pData?.bio || '',
@@ -233,16 +236,22 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     [profile, preferences, user, loadProfile]
   )
 
-  const initials = useMemo(() => computeInitials(profile.fullName, user?.email), [profile.fullName, user?.email])
+  const initials = useMemo(() => {
+    if (!user) return ''
+    return computeInitials(profile.fullName, user.email)
+  }, [profile.fullName, user])
+
   const displayName = useMemo(
-    () => profile.fullName.trim() || (user?.email ? user.email.split('@')[0] : '') || (user ? 'Account' : 'Guest'),
+    () => (user ? (profile.fullName.trim() || (user.email ? user.email.split('@')[0] : 'Account')) : 'Guest'),
     [profile.fullName, user]
   )
+
   const greetingName = useMemo(() => {
-    if (profile.fullName.trim()) {
-      return profile.fullName.trim().split(/\s+/)[0]
+    if (!user) return ''
+    if (profile.fullName && profile.fullName.trim()) {
+      return profile.fullName.trim()
     }
-    if (user?.email) {
+    if (user.email) {
       return user.email.split('@')[0]
     }
     return ''

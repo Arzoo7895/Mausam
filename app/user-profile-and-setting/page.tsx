@@ -85,8 +85,9 @@ export default function Page() {
   const { language, setLanguage, options, t } = useI18n()
 
   useEffect(() => {
-    if (!profileLoading) {
-      setSettings({
+    if (!profileLoading && !saving) {
+      setSettings((prev) => ({
+        ...prev,
         name: profile.fullName || (user?.email ? user.email.split('@')[0] : ''),
         email: user?.email || profile.email || '',
         location: profile.homeLocation || '',
@@ -97,9 +98,9 @@ export default function Page() {
         units: preferences.units,
         theme: preferences.theme,
         language: (preferences.language as Language) || 'en',
-      })
+      }))
     }
-  }, [profileLoading, profile, preferences, user])
+  }, [profileLoading, profile.fullName, profile.homeLocation, profile.bio, profile.email, preferences, user, saving])
 
   useEffect(() => {
     if (settings.theme !== 'system') setTheme(settings.theme)
