@@ -12,7 +12,7 @@ const STORAGE_KEY = 'mausam-notification-preferences'
 export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   email: true,
   push: true,
-  categories: ['Severe Weather', 'Air Quality', 'Precipitation', 'Temperature'],
+  categories: ['Severe Weather', 'Daily Forecast', 'Air Quality', 'Precipitation', 'Temperature'],
 }
 
 function readPreferences(): NotificationPreferences {
@@ -32,12 +32,20 @@ function readPreferences(): NotificationPreferences {
 }
 
 export function saveNotificationPreferences(preferences: NotificationPreferences) {
-  if (typeof window !== 'undefined') window.localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences))
-  window.dispatchEvent(new CustomEvent('mausam-notification-preferences', { detail: preferences }))
+  if (typeof window !== 'undefined') {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences))
+    } catch {
+      // ignore quota / storage errors
+    }
+  }
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('mausam-notification-preferences', { detail: preferences }))
+  }
 }
 
-export function useNotificationPreferences() {
-  const [preferences, setPreferences] = useState<NotificationPreferences>(DEFAULT_NOTIFICATION_PREFERENCES)
+export function useNotificationPreferences(initial?: NotificationPreferences) {
+  const [preferences, setPreferences] = useState<NotificationPreferences>(() => initial ?? readPreferences())
 
   useEffect(() => {
     const sync = (event?: Event) => {

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Loader2, MapPin, Search, X } from 'lucide-react'
 import { type GeoLocation, searchLocations } from '@/lib/weather/service'
+import { useI18n } from '@/lib/i18n'
 
 type Props = {
   open: boolean
@@ -11,6 +12,7 @@ type Props = {
 }
 
 export function LocationSearchDialog({ open, onClose, onSelect }: Props) {
+  const { t } = useI18n()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<GeoLocation[]>([])
   const [loading, setLoading] = useState(false)
@@ -80,7 +82,7 @@ export function LocationSearchDialog({ open, onClose, onSelect }: Props) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Search for a location"
+        aria-label={t('location.searchTitle')}
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
       >
@@ -90,8 +92,8 @@ export function LocationSearchDialog({ open, onClose, onSelect }: Props) {
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search for a city or town…"
-            aria-label="Search for a city or town"
+            placeholder={t('location.searchPlaceholder')}
+            aria-label={t('location.searchPlaceholder')}
             className="h-14 w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
           />
           <button onClick={onClose} aria-label="Close search" className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
@@ -102,25 +104,25 @@ export function LocationSearchDialog({ open, onClose, onSelect }: Props) {
         <div className="max-h-[50vh] overflow-y-auto p-2">
           {loading && (
             <div className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-muted-foreground">
-              <Loader2 size={16} className="animate-spin" /> Searching…
+              <Loader2 size={16} className="animate-spin" /> {t('location.searching')}
             </div>
           )}
 
           {!loading && error && (
             <p role="alert" className="px-4 py-10 text-center text-sm text-destructive">
-              {error}
+              {t('location.unavailable')}
             </p>
           )}
 
           {!loading && !error && results.length === 0 && touched && query.trim().length >= 2 && (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              No matching Indian location found for &ldquo;{query.trim()}&rdquo;. Try another spelling.
+              {t('location.noMatching', { query: query.trim() })}
             </p>
           )}
 
           {!loading && !error && !touched && (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              Start typing to find a city, district, town, or locality in India.
+              {t('location.typePrompt')}
             </p>
           )}
 
@@ -138,7 +140,7 @@ export function LocationSearchDialog({ open, onClose, onSelect }: Props) {
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium">{loc.name}</span>
                   <span className="block truncate text-xs text-muted-foreground">
-                    {[loc.region, loc.country].filter(Boolean).join(', ')}
+                    {loc.displaySubtitle || [loc.district, loc.region, loc.country].filter(Boolean).join(', ') || 'India'}
                   </span>
                 </span>
               </button>

@@ -4,11 +4,14 @@
 export type GeoLocation = {
   id: string
   name: string
+  district?: string
+  state?: string
   region?: string
   country?: string
   countryCode?: string
   latitude: number
   longitude: number
+  displaySubtitle?: string
 }
 
 export type WeatherCodeInfo = {
@@ -94,6 +97,22 @@ export function weatherCodeInfo(code: number): WeatherCodeInfo {
 export async function searchLocations(query: string, signal?: AbortSignal): Promise<GeoLocation[]> {
   const q = query.trim()
   if (q.length < 2) return []
+
+  try {
+    const url = `/api/geocode/search?q=${encodeURIComponent(q)}`
+    const res = await fetch(url, { signal })
+    if (res.ok) {
+      const data = await res.json()
+      if (Array.isArray(data.results)) {
+        return data.results as GeoLocation[]
+      }
+    }
+  } catch (err: any) {
+    if (err?.name === 'AbortError') throw err
+    // If running in an environment without internal API access, fall back to direct Open-Meteo
+  }
+
+  // Fallback to direct Open-Meteo with strict IN filtering
   const url = `${GEOCODE_URL}?name=${encodeURIComponent(q)}&count=10&language=en&countryCode=IN&format=json`
   const res = await fetch(url, { signal })
   if (!res.ok) throw new Error('Location search failed')
@@ -102,11 +121,14 @@ export async function searchLocations(query: string, signal?: AbortSignal): Prom
   const results = data.results.map((r: any) => ({
     id: String(r.id),
     name: r.name,
+    district: r.admin2,
+    state: r.admin1,
     region: r.admin1,
-    country: r.country,
-    countryCode: r.country_code,
+    country: 'India',
+    countryCode: 'IN',
     latitude: r.latitude,
     longitude: r.longitude,
+    displaySubtitle: [r.admin2, r.admin1, 'India'].filter(Boolean).join(', '),
   })) as GeoLocation[]
   return results.filter((location) => location.countryCode?.toLowerCase() === 'in')
 }
@@ -124,14 +146,18 @@ export async function reverseGeocode(latitude: number, longitude: number): Promi
     if (!res.ok) return fallback
     const data = await res.json()
     const name = data.city || data.locality || data.principalSubdivision || 'My location'
+    const countryCode = data.countryCode ? String(data.countryCode).toUpperCase() : undefined
     return {
       id: `coord:${latitude.toFixed(3)},${longitude.toFixed(3)}`,
       name,
+      district: data.locality || undefined,
+      state: data.principalSubdivision || undefined,
       region: data.principalSubdivision || undefined,
       country: data.countryName || undefined,
-      countryCode: data.countryCode || undefined,
+      countryCode,
       latitude,
       longitude,
+      displaySubtitle: [data.locality, data.principalSubdivision, data.countryName].filter(Boolean).join(', '),
     }
   } catch {
     return fallback
