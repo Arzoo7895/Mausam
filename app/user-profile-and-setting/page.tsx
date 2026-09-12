@@ -76,18 +76,13 @@ export default function Page() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [deletionRequested, setDeletionRequested] = useState(false)
   const router = useRouter()
-  const { setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
   const { language, setLanguage, options } = useI18n()
 
   useEffect(() => {
     const stored = window.localStorage.getItem('mausam-settings')
     if (stored) setSettings({ ...initialSettings, ...JSON.parse(stored) })
   }, [])
-
-  useEffect(() => {
-    if (settings.theme !== 'system') setTheme(settings.theme)
-    else setTheme('system')
-  }, [settings.theme, setTheme])
 
   useEffect(() => {
     if (settings.language !== language) {
@@ -153,7 +148,7 @@ export default function Page() {
         <section className="min-w-0 flex-1">
           <header className="flex h-20 items-center justify-between border-b border-border px-5 sm:px-8 lg:px-12">
             <div className="flex items-center gap-3"><button className="rounded-lg p-2 hover:bg-accent lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu"><Menu /></button><div><p className="text-xs font-medium text-muted-foreground">Settings</p><h1 className="text-lg font-semibold tracking-tight">{activeItem?.label}</h1></div></div>
-            <div className="flex items-center gap-2"><button className="hidden rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground sm:block" aria-label="Toggle theme" onClick={() => setTheme(settings.theme === 'dark' ? 'light' : 'dark')}><Moon /></button><Link href="/alerts" className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label="Open alerts"><Bell /></Link><div className="ml-1 flex size-9 items-center justify-center rounded-full bg-secondary text-xs font-semibold">AM</div></div>
+            <div className="flex items-center gap-2"><button className="hidden rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground sm:block" aria-label="Toggle theme" onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}><Moon /></button><Link href="/alerts" className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label="Open alerts"><Bell /></Link><div className="ml-1 flex size-9 items-center justify-center rounded-full bg-secondary text-xs font-semibold">AM</div></div>
           </header>
 
           <div className="mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-12 lg:px-12">

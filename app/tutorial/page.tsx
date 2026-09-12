@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Bell, Check, CheckCircle2, ChevronRight, CloudRain, CloudSun, Compass, LocateFixed, Map, MapPin, Search, Settings2, Sparkles, Sun, UserRound, Wind, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Bell, Check, CheckCircle2, CloudRain, CloudSun, Compass, Map, MapPin, Search, Settings2, Sparkles, Sun, UserRound, Wind, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 type Persona = 'Student' | 'Farmer' | 'Commuter' | 'Traveler'
@@ -56,13 +56,6 @@ export default function Page() {
     function onKeyDown(event: KeyboardEvent) { if (event.key === 'ArrowRight') goNext(); if (event.key === 'ArrowLeft') goPrevious(); if (event.key === 'Escape') setStarted(false) }
     window.addEventListener('keydown', onKeyDown); return () => window.removeEventListener('keydown', onKeyDown)
   })
-
-  useEffect(() => {
-    if (active.id !== 'finish') return
-    document.querySelectorAll('button').forEach((button) => {
-      if (!button.textContent?.trim() && button.getAttribute('aria-label') === null) button.remove()
-    })
-  }, [active.id])
 
   function goNext() { setStarted(true); if (activeIndex === steps.length - 1) { setCompleted(true); return }; setActiveIndex((index) => index + 1) }
   function goPrevious() { setStarted(true); setActiveIndex((index) => Math.max(0, index - 1)) }
