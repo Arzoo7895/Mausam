@@ -1,23 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import {
-  ArrowLeft,
-  Car,
-  Compass,
-  Droplets,
-  GraduationCap,
-  HeartPulse,
-  Loader2,
-  MapPin,
-  RefreshCw,
-  Sprout,
-  Sun,
-  Umbrella,
-  Wind,
-  X,
-} from 'lucide-react'
+import { ArrowLeft, MapPin, Sparkles } from 'lucide-react'
 import { useLocations } from '@/lib/weather/use-locations'
 import { useWeather } from '@/lib/weather/use-weather'
 import {
@@ -149,7 +133,6 @@ export default function AIRecommendationsPage() {
           </div>
         </div>
       </header>
-
       <div className="mx-auto max-w-6xl px-4 py-8 md:px-8">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
@@ -171,33 +154,7 @@ export default function AIRecommendationsPage() {
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" role="group" aria-label="Recommendation persona">
-          {personas.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setPreferred(item.id)}
-              className={`flex min-h-16 items-center gap-3 rounded-2xl border p-4 text-left transition-colors ${
-                currentPersona === item.id
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border bg-card hover:bg-muted'
-              }`}
-            >
-              <span className="rounded-xl bg-background p-2">
-                {item.id === 'student' ? (
-                  <GraduationCap size={19} />
-                ) : item.id === 'farmer' ? (
-                  <Sprout size={19} />
-                ) : item.id === 'commuter' ? (
-                  <Car size={19} />
-                ) : (
-                  <Compass size={19} />
-                )}
-              </span>
-              <span>
-                <span className="block text-sm font-medium">{item.label}</span>
-                <span className="block text-xs text-muted-foreground">{item.hint}</span>
-              </span>
-            </button>
-          ))}
+          {personas.map((item) => <button key={item.id} onClick={() => setPersona(item.id)} className={`rounded-2xl border p-4 text-left ${persona === item.id ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card hover:bg-muted'}`}>{item.label}</button>)}
         </div>
 
         {error && (
@@ -269,13 +226,6 @@ export default function AIRecommendationsPage() {
           )
         )}
       </div>
-      <GuestAuthModal
-        open={guestModalOpen}
-        onClose={() => setGuestModalOpen(false)}
-        featureName="Custom AI Persona"
-        title="Sign up to customize your routine"
-        description="Save your preferred routine persona (Student, Farmer, Commuter, Traveler) to get personalized AI weather intelligence every day."
-      />
     </main>
   )
 }

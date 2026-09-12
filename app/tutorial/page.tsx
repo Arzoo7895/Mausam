@@ -1,6 +1,3 @@
-'use client'
-
-import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Bell, Check, CheckCircle2, ChevronRight, CloudRain, CloudSun, Compass, LocateFixed, Map, MapPin, Search, Settings2, Sparkles, Sun, UserRound, Wind, X } from 'lucide-react'
 import { LanguageSwitcher } from '@/components/language-switcher'
