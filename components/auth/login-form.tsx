@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Eye, EyeOff, Loader2, LockKeyhole, Mail, TriangleAlert } from "lucide-react"
@@ -18,6 +17,20 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const err = params.get("error")
+      if (err) {
+        if (err === "auth_callback") {
+          setError("Authentication could not be completed. Please try signing in again.")
+        } else {
+          setError(decodeURIComponent(err))
+        }
+      }
+    }
+  }, [])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -29,15 +42,17 @@ export function LoginForm() {
 
       if (signInError) {
         setLoading(false)
-        // Genericize the credential/existence signal, but surface actionable states.
-        if (signInError.message.toLowerCase().includes("email not confirmed")) {
-          setError("Please confirm your email address before signing in. Check your inbox for the link.")
+        const msg = signInError.message.toLowerCase()
+        if (msg.includes("email not confirmed")) {
+          setError("Please verify your email before signing in. Check your inbox for the confirmation link.")
         } else if (signInError.status === 429) {
           setError("Too many attempts. Please wait a moment and try again.")
-        } else if (signInError.message.toLowerCase().includes("invalid")) {
-          setError("Invalid email or password.")
+        } else if (msg.includes("invalid login credentials") || msg.includes("invalid user") || msg.includes("invalid grant")) {
+          setError("Email or password is incorrect.")
+        } else if (msg.includes("api key") || msg.includes("jwt")) {
+          setError("Authentication service configuration error. Please contact support or check Supabase settings.")
         } else {
-          setError("Something went wrong. Please try again.")
+          setError(signInError.message || "Something went wrong. Please try again.")
         }
         return
       }
@@ -46,7 +61,7 @@ export function LoginForm() {
       router.refresh()
     } catch {
       setLoading(false)
-      setError("Unable to reach the authentication service. Please try again shortly.")
+      setError("Unable to reach the authentication service. Please check your connection and try again.")
     }
   }
 

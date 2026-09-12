@@ -100,24 +100,37 @@ export async function updateUserProfile(input: ProfileUpdateInput): Promise<Prof
       return { success: false, error: `Profile saved, but preferences could not be updated: ${prefError.message}` }
     }
 
-    // 3. Handle email change through Supabase's secure flow if user modified email
+    // 3. Keep auth.user_metadata.full_name synced for compatibility without conflicting with profiles
     let emailChangePending = false
+    const authUpdates: { email?: string; data?: { full_name: string } } = {}
+
+    if (user.user_metadata?.full_name !== fullName) {
+      authUpdates.data = { full_name: fullName }
+    }
+
     if (email && user.email && email.toLowerCase() !== user.email.toLowerCase()) {
-      const { error: emailError } = await supabase.auth.updateUser({ email })
-      if (emailError) {
-        return {
-          success: true,
-          emailChangePending: false,
-          error: `Profile saved, but email update request failed: ${emailError.message}`,
+      authUpdates.email = email
+      emailChangePending = true
+    }
+
+    if (authUpdates.email || authUpdates.data) {
+      const { error: authUpdateError } = await supabase.auth.updateUser(authUpdates)
+      if (authUpdateError) {
+        if (authUpdates.email) {
+          return {
+            success: true,
+            emailChangePending: false,
+            error: `Profile saved, but email update request failed: ${authUpdateError.message}`,
+          }
         }
       }
-      emailChangePending = true
     }
 
     // 4. Revalidate pages displaying profile information
     revalidatePath('/dashboard')
     revalidatePath('/user-profile-and-setting')
     revalidatePath('/alerts')
+    revalidatePath('/ai-recommendations')
 
     return { success: true, emailChangePending }
   } catch (err: any) {

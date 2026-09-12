@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { motion } from 'motion/react'
 import { useTheme } from 'next-themes'
 import { toast } from 'sonner'
@@ -25,6 +26,7 @@ import { useProfile } from '@/lib/profile-context'
 import { isIndiaLocation } from '@/lib/location-service'
 import { useI18n } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { GuestAuthModal } from '@/components/guest-auth-modal'
 
 function WeatherIcon({ code = 0, isDay = true, size = 24 }: { code?: number; isDay?: boolean; size?: number }) {
   const { icon } = weatherCodeInfo(code)
@@ -77,8 +79,28 @@ export default function MausamDashboard() {
   const [alerts, setAlerts] = useState<WeatherAlert[]>([])
   const { locations, active, activeKey, addLocation, removeLocation, setActive } = useLocations()
   const { data, loading, error, refresh } = useWeather(active?.latitude, active?.longitude)
-  const { greetingName, preferences, isGuest } = useProfile()
+  const { greetingName, preferences, isGuest, user } = useProfile()
   const { t, language } = useI18n()
+  const searchParams = useSearchParams()
+  const isGuestModeParam = searchParams.get('mode') === 'guest'
+  const effectiveIsGuest = isGuest || isGuestModeParam
+  const displayGreetingName = !effectiveIsGuest && user && greetingName ? greetingName : ''
+
+  const [guestModalOpen, setGuestModalOpen] = useState(false)
+  const [guestFeatureName, setGuestFeatureName] = useState('')
+  const [guestModalTitle, setGuestModalTitle] = useState<string | undefined>()
+  const [guestModalDesc, setGuestModalDesc] = useState<string | undefined>()
+
+  const requireAuthFor = (feature: string, customTitle?: string, customDesc?: string): boolean => {
+    if (effectiveIsGuest) {
+      setGuestFeatureName(feature)
+      setGuestModalTitle(customTitle)
+      setGuestModalDesc(customDesc)
+      setGuestModalOpen(true)
+      return false
+    }
+    return true
+  }
 
   useEffect(() => setMounted(true), [])
   const isDark = mounted ? resolvedTheme === 'dark' : false
@@ -105,8 +127,8 @@ export default function MausamDashboard() {
       weather: data,
       alerts,
       persona: (preferences.persona as PersonaType) || 'traveler',
-      userName: greetingName,
-      isGuest,
+      userName: displayGreetingName || undefined,
+      isGuest: effectiveIsGuest,
       locationName: active?.name,
       region: active?.region,
       units: preferences.units,
@@ -118,8 +140,8 @@ export default function MausamDashboard() {
     preferences.persona,
     preferences.units,
     preferences.dailyBrief,
-    greetingName,
-    isGuest,
+    displayGreetingName,
+    effectiveIsGuest,
     active?.name,
     active?.region,
   ])
@@ -175,6 +197,16 @@ export default function MausamDashboard() {
             <div><p className="font-semibold tracking-tight">Mausam <span className="text-primary">AI</span></p><p className="hidden text-[10px] font-medium uppercase tracking-[.18em] text-muted-foreground sm:block">Weather intelligence</p></div>
           </Link>
           <div className="flex items-center gap-2">
+            {effectiveIsGuest && (
+              <Link
+                href="/login"
+                className="hidden items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition sm:flex"
+              >
+                <span>Guest</span>
+                <span className="text-muted-foreground">·</span>
+                <span className="underline">Sign In</span>
+              </Link>
+            )}
             <LanguageSwitcher />
             <button onClick={() => setSearchOpen(true)} aria-label="Search locations" className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"><Search size={18} /></button>
             <button aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`} onClick={() => setTheme(isDark ? 'light' : 'dark')} className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">{isDark ? <Sun size={18} /> : <Moon size={18} />}</button>
@@ -186,7 +218,7 @@ export default function MausamDashboard() {
         <div className="mb-7 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <p className="mb-2 flex items-center gap-2 text-sm text-muted-foreground"><MapPin size={14} className="text-primary" /> {locationLabel} {loading && <Loader2 size={13} className="animate-spin" />}</p>
-            <h1 className="text-3xl font-semibold tracking-[-.04em] md:text-4xl">{getGreetingText()}{greetingName ? `, ${greetingName}` : ''}</h1>
+            <h1 className="text-3xl font-semibold tracking-[-.04em] md:text-4xl">{getGreetingText()}{displayGreetingName ? `, ${displayGreetingName}` : ''}</h1>
             <p className="mt-2 text-sm text-muted-foreground">{dateLabel}</p>
           </div>
           <div className="flex gap-2">
@@ -292,16 +324,23 @@ export default function MausamDashboard() {
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr]">
           <Card className="p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold">{t('dashboard.savedLocations')}</h2><p className="mt-1 text-xs text-muted-foreground">{t('dashboard.yourCitiesAtGlance')}</p></div><button aria-label="Add saved location" onClick={() => setSearchOpen(true)} className="rounded-lg p-2 text-primary hover:bg-muted"><Plus size={17} /></button></div><div className="mt-4 flex flex-wrap gap-2">{locations.map((loc) => { const key = locationKey(loc); const isActive = key === activeKey; return <span key={key} className={`group flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-colors ${isActive ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}><button onClick={() => setActive(key)} className="flex items-center gap-2"><MapPin size={14} />{loc.name}</button>{locations.length > 1 && <button onClick={() => removeLocation(key)} aria-label={`Remove ${loc.name}`} className="ml-0.5 rounded-md p-0.5 text-muted-foreground opacity-60 hover:bg-background/60 hover:text-foreground group-hover:opacity-100"><X size={13} /></button>}</span> })}</div></Card>
-          <Card className="p-6"><div className="flex items-start gap-3"><div className="rounded-lg bg-primary/10 p-2 text-primary"><Sparkles size={17} /></div><div><h2 className="font-semibold">{t('dashboard.quickActions')}</h2><p className="mt-1 text-xs leading-5 text-muted-foreground">{t('dashboard.quickActionsDesc')}</p></div></div><div className="mt-4 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4"><div className="rounded-xl border border-border p-3"><CalendarDays size={17} className="text-primary" /><p className="mt-2 font-medium">{t('dashboard.planTrip')}</p><p className="mt-1 text-muted-foreground">{today ? `${today.precipProb}% rain chance` : 'Forecast pending'}</p></div><div className="rounded-xl border border-border p-3"><Bell size={17} className="text-primary" /><p className="mt-2 font-medium">{t('dashboard.setAlert')}</p><p className="mt-1 text-muted-foreground">{today?.precipProb && today.precipProb >= 40 ? t('dashboard.rainWatchActive') : t('dashboard.noActiveWarning')}</p></div><div className="rounded-xl border border-border p-3"><Thermometer size={17} className="text-primary" /><p className="mt-2 font-medium">{t('dashboard.compare')}</p><p className="mt-1 text-muted-foreground">{c ? `${c.tempC}° feels like ${c.apparentC}°` : 'Conditions pending'}</p></div><div className="rounded-xl border border-border p-3"><Wind size={17} className="text-primary" /><p className="mt-2 font-medium">{t('dashboard.airQuality')}</p><p className="mt-1 text-muted-foreground">{aqiLabel(data?.airQuality.usAqi)}</p></div></div></Card>
+          <Card className="p-6"><div className="flex items-start gap-3"><div className="rounded-lg bg-primary/10 p-2 text-primary"><Sparkles size={17} /></div><div><h2 className="font-semibold">{t('dashboard.quickActions')}</h2><p className="mt-1 text-xs leading-5 text-muted-foreground">{t('dashboard.quickActionsDesc')}</p></div></div><div className="mt-4 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4"><div className="rounded-xl border border-border p-3"><CalendarDays size={17} className="text-primary" /><p className="mt-2 font-medium">{t('dashboard.planTrip')}</p><p className="mt-1 text-muted-foreground">{today ? `${today.precipProb}% rain chance` : 'Forecast pending'}</p></div><div onClick={() => requireAuthFor('Custom Weather Alerts')} className="cursor-pointer rounded-xl border border-border p-3 transition hover:bg-muted/40"><Bell size={17} className="text-primary" /><p className="mt-2 font-medium">{t('dashboard.setAlert')}</p><p className="mt-1 text-muted-foreground">{today?.precipProb && today.precipProb >= 40 ? t('dashboard.rainWatchActive') : t('dashboard.noActiveWarning')}</p></div><div onClick={() => requireAuthFor('Weather Comparison')} className="cursor-pointer rounded-xl border border-border p-3 transition hover:bg-muted/40"><Thermometer size={17} className="text-primary" /><p className="mt-2 font-medium">{t('dashboard.compare')}</p><p className="mt-1 text-muted-foreground">{c ? `${c.tempC}° feels like ${c.apparentC}°` : 'Conditions pending'}</p></div><div className="rounded-xl border border-border p-3"><Wind size={17} className="text-primary" /><p className="mt-2 font-medium">{t('dashboard.airQuality')}</p><p className="mt-1 text-muted-foreground">{aqiLabel(data?.airQuality.usAqi)}</p></div></div></Card>
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 border-t border-border pt-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><p>{t('dashboard.attribution')}</p><div className="flex items-center gap-4"><Link href="/user-profile-and-setting" className="hover:text-foreground"><Settings2 size={13} className="mr-1 inline" /> {t('common.preferences')}</Link><Link href="/help-center/categories/privacy-security" className="hover:text-foreground">{t('common.privacy')}</Link></div></div>
+        <div className="mt-8 flex flex-col gap-3 border-t border-border pt-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><p>{t('dashboard.attribution')}</p><div className="flex items-center gap-4"><button onClick={() => { if (requireAuthFor('Preferences & Settings')) window.location.href = '/user-profile-and-setting' }} className="hover:text-foreground inline-flex items-center"><Settings2 size={13} className="mr-1 inline" /> {t('common.preferences')}</button><Link href="/help-center/categories/privacy-security" className="hover:text-foreground">{t('common.privacy')}</Link></div></div>
       </div>
 
       {moreOpen && <div className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-[2px]" onClick={() => setMoreOpen(false)} aria-hidden="true" />}
-      {moreOpen && <section role="dialog" aria-modal="true" aria-labelledby="more-menu-title" className="fixed inset-x-4 bottom-24 z-50 rounded-2xl border border-border bg-card p-4 shadow-2xl sm:left-auto sm:right-6 sm:w-80"><div className="flex items-center justify-between"><h2 id="more-menu-title" className="font-semibold">{t('nav.more')}</h2><button aria-label="Close more menu" onClick={() => setMoreOpen(false)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><X size={17} /></button></div><div className="mt-3 grid gap-1"><Link href="/user-profile-and-setting" onClick={() => setMoreOpen(false)} className="flex min-h-11 items-center gap-3 rounded-xl px-3 hover:bg-muted"><UserRound size={18} className="text-primary" /> {t('nav.profile')}</Link><Link href="/help-center" onClick={() => setMoreOpen(false)} className="flex min-h-11 items-center gap-3 rounded-xl px-3 hover:bg-muted"><Settings2 size={18} className="text-primary" /> {t('nav.appSettings')}</Link><Link href="/alerts" onClick={() => setMoreOpen(false)} className="flex min-h-11 items-center gap-3 rounded-xl px-3 hover:bg-muted"><Bell size={18} className="text-primary" /> {t('nav.alertPreferences')}</Link><button onClick={() => { setTheme(isDark ? 'light' : 'dark'); setMoreOpen(false) }} className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-left hover:bg-muted"><Moon size={18} className="text-primary" /> Switch to {isDark ? 'light' : 'dark'} mode</button></div></section>}
+      {moreOpen && <section role="dialog" aria-modal="true" aria-labelledby="more-menu-title" className="fixed inset-x-4 bottom-24 z-50 rounded-2xl border border-border bg-card p-4 shadow-2xl sm:left-auto sm:right-6 sm:w-80"><div className="flex items-center justify-between"><h2 id="more-menu-title" className="font-semibold">{t('nav.more')}</h2><button aria-label="Close more menu" onClick={() => setMoreOpen(false)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><X size={17} /></button></div><div className="mt-3 grid gap-1"><button onClick={() => { setMoreOpen(false); if (requireAuthFor('User Profile')) window.location.href = '/user-profile-and-setting' }} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left hover:bg-muted"><UserRound size={18} className="text-primary" /> {t('nav.profile')}</button><button onClick={() => { setMoreOpen(false); if (requireAuthFor('Application Settings')) window.location.href = '/user-profile-and-setting' }} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left hover:bg-muted"><Settings2 size={18} className="text-primary" /> {t('nav.appSettings')}</button><button onClick={() => { setMoreOpen(false); if (requireAuthFor('Alert Preferences')) window.location.href = '/alerts' }} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left hover:bg-muted"><Bell size={18} className="text-primary" /> {t('nav.alertPreferences')}</button><button onClick={() => { setTheme(isDark ? 'light' : 'dark'); setMoreOpen(false) }} className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-left hover:bg-muted"><Moon size={18} className="text-primary" /> Switch to {isDark ? 'light' : 'dark'} mode</button></div></section>}
       <nav aria-label="Dashboard navigation" className="fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-md items-center justify-around rounded-2xl border border-border/80 bg-card/90 p-2 shadow-2xl backdrop-blur-xl [padding-bottom:calc(.5rem+env(safe-area-inset-bottom))]"><Link href="/dashboard" className="flex min-h-11 min-w-16 flex-col items-center justify-center gap-1 rounded-xl bg-primary/10 px-3 text-[11px] font-medium text-primary"><Home size={18} />{t('nav.dashboard')}</Link><Link href="/ai-recommendations" className="flex min-h-11 min-w-16 flex-col items-center justify-center gap-1 rounded-xl px-3 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"><Sparkles size={18} />AI</Link><Link href="/forecast-details" className="flex min-h-11 min-w-16 flex-col items-center justify-center gap-1 rounded-xl px-3 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"><Cloud size={18} />{t('nav.forecast')}</Link><button onClick={() => setMoreOpen(!moreOpen)} aria-expanded={moreOpen} aria-controls="more-menu-title" className="flex min-h-11 min-w-16 flex-col items-center justify-center gap-1 rounded-xl px-3 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"><MoreHorizontal size={18} />{t('nav.more')}</button></nav>
       <LocationSearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} onSelect={handleSelect} />
+      <GuestAuthModal
+        open={guestModalOpen}
+        onClose={() => setGuestModalOpen(false)}
+        featureName={guestFeatureName}
+        title={guestModalTitle}
+        description={guestModalDesc}
+      />
     </main>
   )
 }

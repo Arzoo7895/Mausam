@@ -41,7 +41,7 @@ export function SignUpForm() {
     setFormError(null)
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
         options: {
@@ -52,18 +52,41 @@ export function SignUpForm() {
       })
 
       if (error) {
-        if (error.message.toLowerCase().includes("already registered")) {
-          setFormError("An account with this email already exists. Try signing in instead.")
+        const msg = error.message.toLowerCase()
+        if (msg.includes("already registered") || msg.includes("user already exists")) {
+          setFormError("An account with this email already exists. Please log in instead.")
         } else if (error.status === 429) {
           setFormError("Too many attempts. Please wait a moment and try again.")
-        } else if (error.message.toLowerCase().includes("password")) {
+        } else if (msg.includes("password")) {
           setFormError(error.message)
+        } else if (msg.includes("api key") || msg.includes("jwt")) {
+          setFormError("Authentication service configuration error. Please contact support or check Supabase settings.")
         } else {
-          setFormError("We couldn't create your account right now. Please try again.")
+          setFormError(error.message || "We couldn't create your account right now. Please try again.")
         }
         return
       }
 
+      // If Supabase has email confirmation disabled, a session is returned immediately
+      if (signUpData?.session) {
+        // Ensure profile exists in public.profiles with the user's name
+        if (signUpData.user) {
+          try {
+            await supabase.from("profiles").upsert({
+              id: signUpData.user.id,
+              full_name: values.fullName,
+              updated_at: new Date().toISOString(),
+            })
+          } catch {
+            // Ignore error here as DB trigger may also populate profile
+          }
+        }
+        router.push("/dashboard")
+        router.refresh()
+        return
+      }
+
+      // If email confirmation is required, redirect to confirmation page
       router.push("/auth/sign-up-success")
     } catch {
       setFormError("Network error. Check your connection and try again.")

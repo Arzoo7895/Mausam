@@ -32,6 +32,7 @@ import {
 import { useProfile } from '@/lib/profile-context'
 import { useI18n } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { GuestAuthModal } from '@/components/guest-auth-modal'
 import { useActiveLocation } from '@/lib/location-context'
 import {
   getUserAlertsServer,
@@ -147,11 +148,12 @@ export function AlertsDashboard({
   const [discardOpen, setDiscardOpen] = useState(false)
   const [savedMessage, setSavedMessage] = useState(false)
 
-  const { initials } = useProfile()
+  const [guestModalOpen, setGuestModalOpen] = useState(false)
+  const { initials, isGuest } = useProfile()
   const { t } = useI18n()
   const { active, locations, setActive, isAuthenticated: clientAuth } = useActiveLocation()
 
-  const isAuth = initialAuthenticated || clientAuth
+  const isAuth = (initialAuthenticated || clientAuth) && !isGuest
   const currentLocation = active || initialLocation
 
   // Sync alerts whenever active location changes
@@ -323,18 +325,30 @@ export function AlertsDashboard({
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <button
-              onClick={openSettings}
+              onClick={() => {
+                if (isGuest) {
+                  setGuestModalOpen(true)
+                } else {
+                  openSettings()
+                }
+              }}
               className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
             >
               <Settings2 size={16} /> {t('alerts.settingsBtn')}
             </button>
-            <Link
-              href="/user-profile-and-setting"
+            <button
+              onClick={() => {
+                if (isGuest) {
+                  setGuestModalOpen(true)
+                } else {
+                  window.location.href = '/user-profile-and-setting'
+                }
+              }}
               aria-label="Profile"
               className="grid size-9 place-items-center rounded-full bg-slate-900 text-sm font-semibold text-white"
             >
               {initials || <UserRound size={16} />}
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -517,6 +531,13 @@ export function AlertsDashboard({
 
         {selected && <DetailPanel alert={selected} onClose={() => setSelected(null)} />}
       </div>
+      <GuestAuthModal
+        open={guestModalOpen}
+        onClose={() => setGuestModalOpen(false)}
+        featureName="Alert Preferences"
+        title="Sign up to customize alerts"
+        description="Configure personalized push, email, and SMS notifications for thunderstorms, daily weather summaries, and extreme temperatures."
+      />
     </main>
   )
 }
