@@ -29,14 +29,8 @@ import { getAlerts, type WeatherAlert } from '@/lib/alerts/service'
 import { useProfile } from '@/lib/profile-context'
 import { useI18n } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { GuestAuthModal } from '@/components/guest-auth-modal'
-
-const personas: { id: PersonaType; label: string; hint: string }[] = [
-  { id: 'student', label: 'Student', hint: 'Classes & study' },
-  { id: 'farmer', label: 'Farmer', hint: 'Crops & field work' },
-  { id: 'commuter', label: 'Commuter', hint: 'Transit & roads' },
-  { id: 'traveler', label: 'Traveler', hint: 'Sightseeing & plans' },
-]
 
 const icons = {
   academic: GraduationCap,
@@ -95,6 +89,15 @@ export default function AIRecommendationsPage() {
     }
   }, [active?.latitude, active?.longitude, active?.name])
 
+  const personas: { id: PersonaType; label: string; hint: string }[] = [
+    { id: 'student', label: t('recommendations.student'), hint: t('recommendations.studentHint') },
+    { id: 'farmer', label: t('recommendations.farmer'), hint: t('recommendations.farmerHint') },
+    { id: 'commuter', label: t('recommendations.commuter'), hint: t('recommendations.commuterHint') },
+    { id: 'traveler', label: t('recommendations.traveler'), hint: t('recommendations.travelerHint') },
+  ]
+
+  const currentPersonaLabel = personas.find((p) => p.id === currentPersona)?.label || currentPersona
+
   // Single Intelligence Engine for recommendations
   const result = useMemo(() => {
     if (!data) return null
@@ -111,15 +114,10 @@ export default function AIRecommendationsPage() {
   const visible = result?.recommendations.filter((item) => !dismissed.includes(item.id)) ?? []
 
   const setPreferred = async (value: PersonaType) => {
-    if (isGuest) {
-      setGuestModalOpen(true)
-      return
-    }
-    // Save to user profile for authenticated users
     await saveProfile({ persona: value })
   }
 
-  const location = active ? `${active.name}${active.region ? `, ${active.region}` : ''}` : 'Choose a location'
+  const location = active ? `${active.name}${active.region ? `, ${active.region}` : ''}` : t('recommendations.chooseLocation')
 
   return (
     <main className="min-h-screen bg-background pb-16 text-foreground">
@@ -134,12 +132,13 @@ export default function AIRecommendationsPage() {
               <ArrowLeft size={18} />
             </Link>
             <div>
-              <p className="text-xs uppercase tracking-[.2em] text-muted-foreground">Mausam intelligence</p>
-              <p className="font-semibold">AI recommendations</p>
+              <p className="text-xs uppercase tracking-[.2em] text-muted-foreground">{t('recommendations.intelligence')}</p>
+              <p className="font-semibold">{t('recommendations.title')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
+            <ThemeToggle />
             <button
               onClick={refresh}
               aria-label="Refresh recommendations"
@@ -158,16 +157,16 @@ export default function AIRecommendationsPage() {
               <MapPin size={14} className="text-primary" /> {location}
             </p>
             <p className="mt-5 text-xs font-semibold uppercase tracking-[.2em] text-primary">
-              Mausam AI recommendations
+              {t('recommendations.title')}
             </p>
-            <h1 className="mt-2 text-4xl font-semibold tracking-tight text-balance md:text-5xl">Make today easier.</h1>
+            <h1 className="mt-2 text-4xl font-semibold tracking-tight text-balance md:text-5xl">{t('recommendations.pageTitle')}</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Practical, weather-informed guidance tailored to your routine and live atmospheric conditions.
+              {t('recommendations.pageSubtitle')}
             </p>
           </div>
           <div className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
             <span className="mr-2 inline-block size-2 rounded-full bg-emerald-500" />
-            Live weather data
+            {t('recommendations.liveData')}
           </div>
         </div>
 
@@ -208,14 +207,14 @@ export default function AIRecommendationsPage() {
           >
             <span>{error}</span>
             <button onClick={refresh} className="rounded-lg border border-destructive/30 px-3 py-2 font-medium">
-              Retry
+              {t('recommendations.retry')}
             </button>
           </div>
         )}
 
         {loading && !data ? (
           <div className="flex min-h-80 items-center justify-center text-muted-foreground">
-            <Loader2 className="mr-2 animate-spin" size={18} /> Building live recommendations…
+            <Loader2 className="mr-2 animate-spin" size={18} /> {t('recommendations.loading')}
           </div>
         ) : (
           result && (
@@ -239,14 +238,14 @@ export default function AIRecommendationsPage() {
               <section className="mt-8">
                 <div className="flex items-end justify-between gap-4">
                   <div>
-                    <h2 className="text-xl font-semibold">Your weather brief</h2>
+                    <h2 className="text-xl font-semibold">{t('recommendations.briefTitle')}</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Prioritized guidance for your {currentPersona} routine.
+                      {t('recommendations.briefSubtitle', { persona: currentPersonaLabel })}
                     </p>
                   </div>
                   {dismissed.length > 0 && (
                     <button onClick={() => setDismissed([])} className="text-sm text-primary hover:underline">
-                      Restore dismissed
+                      {t('recommendations.restore')}
                     </button>
                   )}
                 </div>
@@ -261,7 +260,7 @@ export default function AIRecommendationsPage() {
                   ))}
                   {visible.length === 0 && (
                     <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-                      All recommendations are dismissed. Restore them to review the brief again.
+                      {t('recommendations.dismissedAll')}
                     </div>
                   )}
                 </div>
@@ -283,6 +282,7 @@ export default function AIRecommendationsPage() {
 
 function RecommendationCard({ item, onDismiss }: { item: Recommendation; onDismiss: () => void }) {
   const Icon = icons[item.category] ?? Sun
+  const { t } = useI18n()
   return (
     <article className={`rounded-2xl border p-5 ${tone[item.severity]}`}>
       <div className="flex items-start gap-4">
@@ -310,10 +310,10 @@ function RecommendationCard({ item, onDismiss }: { item: Recommendation; onDismi
           </div>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.guidance}</p>
           <div className="mt-4 rounded-xl bg-background/50 p-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Why this?</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('recommendations.whyThis')}</p>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.whyThis}</p>
           </div>
-          {item.timeWindow && <p className="mt-3 text-xs font-medium text-primary">Window: {item.timeWindow}</p>}
+          {item.timeWindow && <p className="mt-3 text-xs font-medium text-primary">{t('recommendations.window', { window: item.timeWindow })}</p>}
         </div>
       </div>
     </article>

@@ -79,7 +79,7 @@ export default function MausamDashboard() {
   const [alerts, setAlerts] = useState<WeatherAlert[]>([])
   const { locations, active, activeKey, addLocation, removeLocation, setActive } = useLocations()
   const { data, loading, error, refresh } = useWeather(active?.latitude, active?.longitude)
-  const { greetingName, preferences, isGuest, user } = useProfile()
+  const { greetingName, preferences, isGuest, user, profile, initials } = useProfile()
   const { t, language } = useI18n()
   const searchParams = useSearchParams()
   const isGuestModeParam = searchParams.get('mode') === 'guest'
@@ -210,6 +210,25 @@ export default function MausamDashboard() {
             <LanguageSwitcher />
             <button onClick={() => setSearchOpen(true)} aria-label="Search locations" className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"><Search size={18} /></button>
             <button aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`} onClick={() => setTheme(isDark ? 'light' : 'dark')} className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">{isDark ? <Sun size={18} /> : <Moon size={18} />}</button>
+            <button
+              onClick={() => {
+                if (requireAuthFor('User Profile')) {
+                  window.location.href = '/user-profile-and-setting'
+                }
+              }}
+              aria-label="User Profile"
+              className="grid size-9 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground overflow-hidden hover:opacity-90 transition"
+            >
+              {profile.avatarUrl ? (
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.fullName || 'User avatar'}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                initials || <UserRound size={16} />
+              )}
+            </button>
           </div>
         </div>
       </header>

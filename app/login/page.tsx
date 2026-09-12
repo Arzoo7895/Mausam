@@ -2,6 +2,7 @@ import Link from "next/link"
 import { ArrowUpRight, CloudSun, Gauge, MapPinned } from "lucide-react"
 import { Logo } from "@/components/mausam/logo"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { WeatherBackdrop } from "@/components/weather-backdrop"
 import { LoginForm } from "@/components/auth/login-form"
 
@@ -73,7 +74,10 @@ export default function LoginPage() {
           <div className="lg:hidden">
             <Logo />
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
         </header>
 
         <div className="flex flex-1 items-center justify-center px-5 pb-12">

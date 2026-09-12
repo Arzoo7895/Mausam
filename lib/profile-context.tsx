@@ -202,7 +202,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
         try {
           window.localStorage.setItem(
             'mausam-guest-profile',
-            JSON.stringify({ profile: nextProfile, preferences: nextPreferences })
+            JSON.stringify({ profile: GUEST_PROFILE, preferences: nextPreferences })
           )
         } catch {}
         return { success: true }
@@ -213,6 +213,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
         fullName: nextProfile.fullName,
         homeLocation: nextProfile.homeLocation,
         bio: nextProfile.bio,
+        avatarUrl: nextProfile.avatarUrl,
+        persona: nextPreferences.persona,
         units: nextPreferences.units,
         theme: nextPreferences.theme,
         language: nextPreferences.language,

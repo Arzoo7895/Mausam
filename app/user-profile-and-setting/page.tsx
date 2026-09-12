@@ -7,6 +7,8 @@ import { useTheme } from 'next-themes'
 import { createClient } from '@/lib/supabase/client'
 import { useI18n, type Language } from '@/lib/i18n'
 import { useProfile } from '@/lib/profile-context'
+import { AvatarUpload } from '@/components/avatar-upload'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { toast } from 'sonner'
 import {
   Bell,
@@ -103,11 +105,6 @@ export default function Page() {
   }, [profileLoading, profile.fullName, profile.homeLocation, profile.bio, profile.email, preferences, user, saving])
 
   useEffect(() => {
-    if (settings.theme !== 'system') setTheme(settings.theme)
-    else setTheme('system')
-  }, [settings.theme, setTheme])
-
-  useEffect(() => {
     if (settings.language !== language) {
       setSettings((current) => ({ ...current, language }))
     }
@@ -117,6 +114,9 @@ export default function Page() {
 
   function updateSettings(patch: Partial<SettingsState>) {
     setSettings((current) => ({ ...current, ...patch }))
+    if (patch.theme) {
+      setTheme(patch.theme)
+    }
     setSaved(false)
   }
 
@@ -185,8 +185,12 @@ export default function Page() {
           </div>
           <div className="border-t border-border pt-4">
             <div className="mt-4 flex items-center gap-3 rounded-xl bg-background/70 p-3">
-              <div className="flex size-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                {initials || <UserRound size={16} />}
+              <div className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+                {profile.avatarUrl ? (
+                  <img src={profile.avatarUrl} alt={displayName} className="size-full object-cover" />
+                ) : (
+                  initials || <UserRound size={16} />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{displayName}</p>
@@ -206,7 +210,7 @@ export default function Page() {
         <section className="min-w-0 flex-1">
           <header className="flex h-20 items-center justify-between border-b border-border px-5 sm:px-8 lg:px-12">
             <div className="flex items-center gap-3"><button className="rounded-lg p-2 hover:bg-accent lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu"><Menu /></button><div><p className="text-xs font-medium text-muted-foreground">Settings</p><h1 className="text-lg font-semibold tracking-tight">{activeItem?.label}</h1></div></div>
-            <div className="flex items-center gap-2"><button className="hidden rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground sm:block" aria-label="Toggle theme" onClick={() => setTheme(settings.theme === 'dark' ? 'light' : 'dark')}><Moon /></button><Link href="/alerts" className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label="Open alerts"><Bell /></Link><div className="ml-1 flex size-9 items-center justify-center rounded-full bg-secondary text-xs font-semibold">{initials || <UserRound size={15} />}</div></div>
+            <div className="flex items-center gap-2"><ThemeToggle /><Link href="/alerts" className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label="Open alerts"><Bell /></Link><div className="ml-1 flex size-9 items-center justify-center overflow-hidden rounded-full bg-secondary text-xs font-semibold">{profile.avatarUrl ? <img src={profile.avatarUrl} alt={displayName} className="size-full object-cover" /> : initials || <UserRound size={15} />}</div></div>
           </header>
 
           <div className="mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-12 lg:px-12">
@@ -232,7 +236,7 @@ export default function Page() {
 function Brand() { return <div className="flex items-center gap-2.5 px-2"><div className="flex size-8 items-center justify-center rounded-[10px] bg-primary text-primary-foreground"><CloudSun aria-hidden="true" /></div><span className="text-base font-semibold tracking-tight">Mausam <span className="text-muted-foreground">AI</span></span></div> }
 function NavLink({ icon: Icon, label, href, active = false }: { icon: typeof UserRound; label: string; href: string; active?: boolean }) { return <Link href={href} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${active ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}><Icon aria-hidden="true" />{label}</Link> }
 function Card({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) { return <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_color-mix(in_oklab,var(--foreground)_4%,transparent)]"><div className="border-b border-border px-5 py-5 sm:px-6"><h3 className="font-semibold tracking-tight">{title}</h3>{description && <p className="mt-1 text-sm leading-6 text-muted-foreground">{description}</p>}</div>{children}</section> }
-function ProfileSection({ settings, updateSettings, initials }: { settings: SettingsState; updateSettings: (patch: Partial<SettingsState>) => void; initials: string }) { return <div className="flex flex-col gap-6"><Card title="Personal profile" description="This information helps Mausam personalize your forecasts and recommendations."><div className="flex flex-col gap-6 px-5 py-6 sm:px-6"><div className="flex items-center gap-4"><div className="flex size-16 items-center justify-center rounded-2xl bg-primary text-lg font-semibold text-primary-foreground shadow-sm">{initials || <UserRound size={26} />}</div><div><p className="font-medium">Profile photo</p><p className="mt-1 text-sm text-muted-foreground">JPG or PNG, up to 5MB.</p></div><button className="ml-auto rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-accent">Upload</button></div><div className="grid gap-5 sm:grid-cols-2"><Field label="Full name" value={settings.name} onChange={(name) => updateSettings({ name })} /><Field label="Email address" value={settings.email} onChange={(email) => updateSettings({ email })} type="email" /></div><Field label="Home location" value={settings.location} onChange={(location) => updateSettings({ location })} hint="Used for your default weather view." /><label className="flex flex-col gap-2 text-sm font-medium">Bio<textarea value={settings.bio} onChange={(event) => updateSettings({ bio: event.target.value })} rows={3} className="resize-none rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-normal outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring" /></label></div></Card><Card title="Profile visibility" description="Choose how your profile appears across shared weather workspaces."><div className="flex items-center justify-between gap-4 px-5 py-5 sm:px-6"><div><p className="text-sm font-medium">Private profile</p><p className="mt-1 text-sm text-muted-foreground">Only you can see your personal details.</p></div><div className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">Default</div></div></Card></div> }
+function ProfileSection({ settings, updateSettings, initials }: { settings: SettingsState; updateSettings: (patch: Partial<SettingsState>) => void; initials: string }) { return <div className="flex flex-col gap-6"><Card title="Personal profile" description="This information helps Mausam personalize your forecasts and recommendations."><div className="flex flex-col gap-6 px-5 py-6 sm:px-6"><AvatarUpload initials={initials} /><div className="grid gap-5 sm:grid-cols-2"><Field label="Full name" value={settings.name} onChange={(name) => updateSettings({ name })} /><Field label="Email address" value={settings.email} onChange={(email) => updateSettings({ email })} type="email" /></div><Field label="Home location" value={settings.location} onChange={(location) => updateSettings({ location })} hint="Used for your default weather view." /><label className="flex flex-col gap-2 text-sm font-medium">Bio<textarea value={settings.bio} onChange={(event) => updateSettings({ bio: event.target.value })} rows={3} className="resize-none rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-normal outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring" /></label></div></Card><Card title="Profile visibility" description="Choose how your profile appears across shared weather workspaces."><div className="flex items-center justify-between gap-4 px-5 py-5 sm:px-6"><div><p className="text-sm font-medium">Private profile</p><p className="mt-1 text-sm text-muted-foreground">Only you can see your personal details.</p></div><div className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">Default</div></div></Card></div> }
 function Field({ label, value, onChange, type = 'text', hint }: { label: string; value: string; onChange: (value: string) => void; type?: string; hint?: string }) { return <label className="flex flex-col gap-2 text-sm font-medium">{label}<input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="rounded-lg border border-input bg-background px-3 py-2.5 font-normal outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring" />{hint && <span className="text-xs font-normal text-muted-foreground">{hint}</span>}</label> }
 function NotificationsSection({ settings, updateSettings }: { settings: SettingsState; updateSettings: (patch: Partial<SettingsState>) => void }) { return <Card title="Notification preferences" description="Stay informed without adding noise to your day."><div className="flex flex-col divide-y divide-border px-5 sm:px-6">{[['alerts', 'Weather alerts', 'Get notified about severe weather and meaningful changes.'], ['dailyBrief', 'Daily weather brief', 'A concise morning summary for your saved locations.'], ['severeWeather', 'Severe weather warnings', 'Priority alerts when conditions may affect your safety.']].map(([key, label, description]) => <div key={key} className="flex items-center justify-between gap-4 py-5"><div><p className="text-sm font-medium">{label}</p><p className="mt-1 max-w-lg text-sm leading-6 text-muted-foreground">{description}</p></div><button role="switch" aria-checked={settings[key as keyof SettingsState] as boolean} onClick={() => updateSettings({ [key]: !settings[key as keyof SettingsState] })} className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${settings[key as keyof SettingsState] ? 'bg-primary' : 'bg-muted'}`}><span className={`absolute top-1 size-4 rounded-full bg-background transition-transform ${settings[key as keyof SettingsState] ? 'translate-x-6' : 'translate-x-1'}`} /></button></div>)}</div></Card> }
 function PreferencesSection({ settings, updateSettings }: { settings: SettingsState; updateSettings: (patch: Partial<SettingsState>) => void }) { return <div className="flex flex-col gap-6"><Card title="Forecast preferences" description="Shape how weather data is presented to you."><div className="flex flex-col gap-6 px-5 py-6 sm:px-6"><Choice label="Measurement units" value={settings.units} onChange={(units) => updateSettings({ units: units as SettingsState['units'] })} options={[['metric', 'Metric', '°C, km/h'], ['imperial', 'Imperial', '°F, mph']]} /><Choice label="Appearance" value={settings.theme} onChange={(theme) => updateSettings({ theme: theme as SettingsState['theme'] })} options={[['system', 'System', 'Matches device'], ['light', 'Light', 'Always light'], ['dark', 'Dark', 'Always dark']]} /></div></Card><Card title="Data & privacy" description="Mausam is designed to keep your data clear and in your control."><div className="flex items-center gap-3 px-5 py-5 text-sm text-muted-foreground sm:px-6"><ShieldCheck className="text-primary" aria-hidden="true" /><p>Location data is used only to personalize your forecast experience.</p></div></Card></div> }

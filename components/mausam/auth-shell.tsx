@@ -5,6 +5,7 @@ import { motion } from "motion/react"
 import { CloudSun, Sparkles, Zap } from "lucide-react"
 import { Logo } from "@/components/mausam/logo"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { WeatherBackground } from "@/components/weather-background"
 const highlights = [
   { icon: CloudSun, title: "Hyperlocal forecasts", desc: "Minute-by-minute accuracy for any coordinate on Earth." },
@@ -19,7 +20,10 @@ export function AuthShell({ children }: { children: ReactNode }) {
 
       <header className="flex items-center justify-between px-5 py-5 sm:px-8">
         <Logo />
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
       </header>
 
       <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-5 pb-10 sm:px-8 lg:grid-cols-2 lg:gap-16">

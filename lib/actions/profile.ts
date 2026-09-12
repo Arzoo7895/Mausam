@@ -8,6 +8,8 @@ const profileUpdateSchema = z.object({
   fullName: z.string().trim().min(1, 'Name is required').max(100),
   homeLocation: z.string().trim().max(150).optional(),
   bio: z.string().trim().max(500).optional(),
+  avatarUrl: z.string().optional(),
+  persona: z.string().optional(),
   units: z.enum(['metric', 'imperial']).optional(),
   theme: z.enum(['light', 'dark', 'system']).optional(),
   language: z.string().max(10).optional(),
@@ -64,48 +66,65 @@ export async function updateUserProfile(input: ProfileUpdateInput): Promise<Prof
       return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid profile data.' }
     }
 
-    const { fullName, homeLocation, bio, units, theme, language, alerts, dailyBrief, severeWeather, email } = parsed.data
+    const { fullName, homeLocation, bio, avatarUrl, persona, units, theme, language, alerts, dailyBrief, severeWeather, email } = parsed.data
 
     // 1. Update public.profiles using authenticated user.id
+    const profilePayload: Record<string, any> = {
+      id: user.id,
+      full_name: fullName,
+      home_location: homeLocation ? homeLocation : null,
+      bio: bio ? bio : null,
+      updated_at: new Date().toISOString(),
+    }
+    if (avatarUrl !== undefined) {
+      profilePayload.avatar_url = avatarUrl || null
+    }
+
     const { error: profileError } = await supabase
       .from('profiles')
-      .upsert({
-        id: user.id,
-        full_name: fullName,
-        home_location: homeLocation ? homeLocation : null,
-        bio: bio ? bio : null,
-        updated_at: new Date().toISOString(),
-      })
+      .upsert(profilePayload)
 
     if (profileError) {
       return { success: false, error: `Could not save profile: ${profileError.message}` }
     }
 
     // 2. Update public.user_preferences
+    const prefPayload: Record<string, any> = {
+      user_id: user.id,
+      temperature_unit: units === 'imperial' ? 'fahrenheit' : 'celsius',
+      wind_unit: units === 'imperial' ? 'mph' : 'kmh',
+      theme: theme ?? 'system',
+      language: language ?? 'en',
+      alerts: alerts ?? true,
+      daily_brief: dailyBrief ?? true,
+      severe_weather: severeWeather ?? true,
+      updated_at: new Date().toISOString(),
+    }
+    if (persona) {
+      prefPayload.persona = persona
+    }
+
     const { error: prefError } = await supabase
       .from('user_preferences')
-      .upsert({
-        user_id: user.id,
-        temperature_unit: units === 'imperial' ? 'fahrenheit' : 'celsius',
-        wind_unit: units === 'imperial' ? 'mph' : 'kmh',
-        theme: theme ?? 'system',
-        language: language ?? 'en',
-        alerts: alerts ?? true,
-        daily_brief: dailyBrief ?? true,
-        severe_weather: severeWeather ?? true,
-        updated_at: new Date().toISOString(),
-      })
+      .upsert(prefPayload)
 
     if (prefError) {
       return { success: false, error: `Profile saved, but preferences could not be updated: ${prefError.message}` }
     }
 
-    // 3. Keep auth.user_metadata.full_name synced for compatibility without conflicting with profiles
+    // 3. Keep auth.user_metadata synced for compatibility
     let emailChangePending = false
-    const authUpdates: { email?: string; data?: { full_name: string } } = {}
-
+    const metadataUpdates: Record<string, any> = {}
     if (user.user_metadata?.full_name !== fullName) {
-      authUpdates.data = { full_name: fullName }
+      metadataUpdates.full_name = fullName
+    }
+    if (avatarUrl !== undefined && user.user_metadata?.avatar_url !== avatarUrl) {
+      metadataUpdates.avatar_url = avatarUrl
+    }
+
+    const authUpdates: { email?: string; data?: Record<string, any> } = {}
+    if (Object.keys(metadataUpdates).length > 0) {
+      authUpdates.data = metadataUpdates
     }
 
     if (email && user.email && email.toLowerCase() !== user.email.toLowerCase()) {

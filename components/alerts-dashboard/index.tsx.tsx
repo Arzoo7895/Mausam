@@ -32,6 +32,7 @@ import {
 import { useProfile } from '@/lib/profile-context'
 import { useI18n } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { GuestAuthModal } from '@/components/guest-auth-modal'
 import { useActiveLocation } from '@/lib/location-context'
 import {
@@ -149,7 +150,7 @@ export function AlertsDashboard({
   const [savedMessage, setSavedMessage] = useState(false)
 
   const [guestModalOpen, setGuestModalOpen] = useState(false)
-  const { initials, isGuest } = useProfile()
+  const { initials, isGuest, profile } = useProfile()
   const { t } = useI18n()
   const { active, locations, setActive, isAuthenticated: clientAuth } = useActiveLocation()
 
@@ -306,24 +307,25 @@ export function AlertsDashboard({
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f9fb] text-slate-950">
-      <header className="border-b border-slate-200 bg-white/95 backdrop-blur">
+    <main className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-4 lg:px-10">
           <div className="flex items-center gap-4">
             <Link
               href="/dashboard"
               aria-label="Back to dashboard"
-              className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
+              className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition hover:border-border/80 hover:bg-muted"
             >
               <ArrowLeft size={18} />
             </Link>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Mausam AI</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Mausam AI</p>
               <h1 className="mt-1 text-2xl font-semibold tracking-tight">{t('alerts.title')}</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
+            <ThemeToggle />
             <button
               onClick={() => {
                 if (isGuest) {
@@ -332,7 +334,7 @@ export function AlertsDashboard({
                   openSettings()
                 }
               }}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
             >
               <Settings2 size={16} /> {t('alerts.settingsBtn')}
             </button>
@@ -345,9 +347,17 @@ export function AlertsDashboard({
                 }
               }}
               aria-label="Profile"
-              className="grid size-9 place-items-center rounded-full bg-slate-900 text-sm font-semibold text-white"
+              className="grid size-9 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground overflow-hidden"
             >
-              {initials || <UserRound size={16} />}
+              {profile.avatarUrl ? (
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.fullName || 'User Avatar'}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                initials || <UserRound size={16} />
+              )}
             </button>
           </div>
         </div>
@@ -356,13 +366,13 @@ export function AlertsDashboard({
       <div className="mx-auto max-w-[1440px] px-6 py-8 lg:px-10">
         <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="text-sm text-slate-500">{t('alerts.subtitle')}</p>
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-slate-500">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-sm ring-1 ring-slate-200">
+            <p className="text-sm text-muted-foreground">{t('alerts.subtitle')}</p>
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 shadow-sm ring-1 ring-border text-foreground">
                 <Bell size={15} className="text-orange-500" /> {t('alerts.unreadCount', { count: unreadCount })}
               </span>
               {currentLocation ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-sm ring-1 ring-slate-200 text-slate-700 font-medium">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 shadow-sm ring-1 ring-border text-foreground font-medium">
                   <MapPin size={14} className="text-orange-500" />
                   {currentLocation.name}
                   {currentLocation.region ? `, ${currentLocation.region}` : ''}
@@ -378,12 +388,13 @@ export function AlertsDashboard({
                     )
                     if (found) setActive(found.id || `${found.name}-${found.latitude}`)
                   }}
-                  className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 outline-none hover:bg-slate-50"
+                  className="rounded-full bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-sm ring-1 ring-border outline-none hover:bg-muted cursor-pointer"
                 >
                   {locations.map((loc) => (
                     <option
                       key={loc.id || `${loc.name}-${loc.latitude}`}
                       value={`${loc.name}-${loc.latitude}-${loc.longitude}`}
+                      className="bg-card text-foreground"
                     >
                       {loc.name} {loc.region ? `(${loc.region})` : ''}
                     </option>
@@ -395,13 +406,13 @@ export function AlertsDashboard({
             </div>
           </div>
           <div className="relative w-full md:w-80">
-            <Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               aria-label={t('alerts.searchPlaceholder')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('alerts.searchPlaceholder')}
-              className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm outline-none ring-orange-400 transition focus:ring-2"
+              className="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-3 text-sm outline-none ring-orange-400 transition focus:ring-2 text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </div>
@@ -413,8 +424,8 @@ export function AlertsDashboard({
               onClick={() => setFilter(item)}
               className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
                 filter === item
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'bg-white text-slate-500 ring-1 ring-slate-200 hover:text-slate-900'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-card text-muted-foreground ring-1 ring-border hover:text-foreground'
               }`}
             >
               {item === 'All'
@@ -433,7 +444,7 @@ export function AlertsDashboard({
         </div>
 
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-sm font-medium text-muted-foreground">
             {showArchived
               ? t('alerts.archivedAlerts', { count: visible.length })
               : t('alerts.activeAlerts', { count: visible.length })}
@@ -441,20 +452,20 @@ export function AlertsDashboard({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowArchived(!showArchived)}
-              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-slate-500 hover:bg-white"
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-muted"
             >
               <Inbox size={15} /> {showArchived ? t('alerts.active') : t('alerts.archived')}
             </button>
-            <label className="inline-flex items-center gap-1.5 text-sm text-slate-500">
+            <label className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
               <SlidersHorizontal size={15} />
               <select
                 aria-label="Sort alerts"
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="bg-transparent outline-none cursor-pointer"
+                className="bg-transparent outline-none cursor-pointer text-foreground"
               >
-                <option value="Newest first">{t('alerts.sortNewest')}</option>
-                <option value="Oldest first">{t('alerts.sortOldest')}</option>
+                <option value="Newest first" className="bg-card text-foreground">{t('alerts.sortNewest')}</option>
+                <option value="Oldest first" className="bg-card text-foreground">{t('alerts.sortOldest')}</option>
               </select>
             </label>
           </div>
@@ -473,10 +484,10 @@ export function AlertsDashboard({
           ))}
 
           {visible.length === 0 && (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-              <CircleAlert className="mx-auto text-slate-300" size={32} />
-              <h2 className="mt-3 font-semibold">{t('alerts.noAlerts')}</h2>
-              <p className="mt-1 text-sm text-slate-500">
+            <div className="rounded-xl border border-dashed border-border bg-card px-6 py-16 text-center">
+              <CircleAlert className="mx-auto text-muted-foreground" size={32} />
+              <h2 className="mt-3 font-semibold text-foreground">{t('alerts.noAlerts')}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
                 {currentLocation
                   ? t('alerts.tryAnotherSearch')
                   : 'Select an Indian location in your Dashboard to view live atmospheric alerts.'}
@@ -484,7 +495,7 @@ export function AlertsDashboard({
               {!currentLocation && (
                 <Link
                   href="/dashboard"
-                  className="mt-4 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition"
+                  className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition"
                 >
                   Choose Location
                 </Link>
@@ -493,15 +504,15 @@ export function AlertsDashboard({
           )}
         </div>
 
-        <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="mt-8 rounded-xl border border-border bg-card p-6 shadow-sm">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-orange-600">
                 <Sparkles size={17} />
                 <p className="text-sm font-semibold">{t('alerts.aiInsights')}</p>
               </div>
-              <h2 className="mt-2 text-lg font-semibold">{t('alerts.title')}</h2>
-              <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
+              <h2 className="mt-2 text-lg font-semibold text-foreground">{t('alerts.title')}</h2>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
                 {t('alerts.feedSummary')}
               </p>
             </div>
@@ -559,8 +570,8 @@ function AlertCard({
 
   return (
     <article
-      className={`group relative rounded-xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-        alert.unread ? 'border-orange-200' : 'border-slate-200'
+      className={`group relative rounded-xl border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+        alert.unread ? 'border-orange-500/40 ring-1 ring-orange-500/20' : 'border-border'
       }`}
     >
       <div className="flex gap-4">
@@ -571,14 +582,14 @@ function AlertCard({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {alert.type}
                 </span>
                 {alert.unread && <span className="size-2 rounded-full bg-orange-500" aria-label="Unread" />}
               </div>
               <button
                 onClick={onOpen}
-                className="mt-1 text-left text-base font-semibold text-slate-900 hover:text-orange-600 transition"
+                className="mt-1 text-left text-base font-semibold text-foreground hover:text-orange-500 transition"
               >
                 {alert.title}
               </button>
@@ -586,7 +597,7 @@ function AlertCard({
             <button
               onClick={onFavorite}
               aria-label={alert.favorite ? 'Remove favorite' : 'Add favorite'}
-              className="rounded-md p-1.5 text-slate-300 hover:bg-slate-50 hover:text-orange-500 transition"
+              className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-orange-500 transition"
             >
               {alert.favorite ? (
                 <Heart size={18} fill="currentColor" className="text-orange-500" />
@@ -595,18 +606,18 @@ function AlertCard({
               )}
             </button>
           </div>
-          <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-slate-600">
-            <MapPin size={14} className="text-slate-400" /> {alert.location}
+          <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+            <MapPin size={14} className="text-muted-foreground" /> {alert.location}
           </p>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">{alert.detail}</p>
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{alert.detail}</p>
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
             <span>{alert.relativeTime}</span>
             {alert.expiresAt && <span>Expires {alert.expiresAt}</span>}
             {alert.temperature && <span>{alert.temperature}</span>}
             <div className="ml-auto flex items-center gap-1">
               <button
                 onClick={onArchive}
-                className="rounded-md p-1.5 hover:bg-slate-50 hover:text-slate-700 transition"
+                className="rounded-md p-1.5 hover:bg-muted hover:text-foreground transition"
                 aria-label={alert.archived ? 'Restore alert' : 'Archive alert'}
                 title={alert.archived ? 'Restore alert' : 'Archive alert'}
               >
@@ -614,7 +625,7 @@ function AlertCard({
               </button>
               <button
                 onClick={onDelete}
-                className="rounded-md p-1.5 hover:bg-slate-50 hover:text-red-500 transition"
+                className="rounded-md p-1.5 hover:bg-muted hover:text-red-500 transition"
                 aria-label="Delete alert"
                 title="Delete alert"
               >
@@ -631,40 +642,40 @@ function AlertCard({
 function DetailPanel({ alert, onClose }: { alert: WeatherAlert; onClose: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-20 flex items-end justify-center bg-slate-950/20 p-0 backdrop-blur-[2px] sm:items-center sm:p-6"
+      className="fixed inset-0 z-20 flex items-end justify-center bg-black/50 p-0 backdrop-blur-[2px] sm:items-center sm:p-6"
       onClick={onClose}
     >
       <aside
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-6 shadow-2xl sm:rounded-2xl"
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-card border border-border p-6 shadow-2xl sm:rounded-2xl"
       >
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-orange-600">{alert.type}</p>
-            <h2 className="mt-2 text-xl font-semibold">{alert.title}</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-orange-500">{alert.type}</p>
+            <h2 className="mt-2 text-xl font-semibold text-foreground">{alert.title}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
               {alert.location} · {alert.timestamp}
             </p>
           </div>
-          <button onClick={onClose} aria-label="Close details" className="rounded-lg p-2 text-slate-400 hover:bg-slate-100">
+          <button onClick={onClose} aria-label="Close details" className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
             <X size={18} />
           </button>
         </div>
 
-        <div className="mt-6 rounded-xl bg-orange-50 p-4">
-          <div className="flex items-center gap-2 text-sm font-semibold text-orange-700">
+        <div className="mt-6 rounded-xl bg-orange-500/10 border border-orange-500/20 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-orange-600 dark:text-orange-400">
             <Sparkles size={16} /> Weather intelligence insight
           </div>
-          <p className="mt-2 text-sm leading-6 text-orange-950">
+          <p className="mt-2 text-sm leading-6 text-foreground">
             {alert.insight ?? 'Keep an eye on changing conditions and check back for the latest atmospheric forecast.'}
           </p>
         </div>
 
-        <p className="mt-6 text-sm leading-7 text-slate-600">{alert.detail}</p>
+        <p className="mt-6 text-sm leading-7 text-muted-foreground">{alert.detail}</p>
 
         <button
           onClick={onClose}
-          className="mt-6 w-full rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 transition"
+          className="mt-6 w-full rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition"
         >
           Done
         </button>
@@ -695,29 +706,29 @@ function SettingsPanel({
     })
 
   return (
-    <div className="fixed inset-0 z-20 flex justify-end bg-slate-950/20 backdrop-blur-[2px]" onClick={onClose}>
+    <div className="fixed inset-0 z-20 flex justify-end bg-black/50 backdrop-blur-[2px]" onClick={onClose}>
       <aside
         onClick={(e) => e.stopPropagation()}
-        className="h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-2xl"
+        className="h-full w-full max-w-md overflow-y-auto bg-card border-l border-border p-6 shadow-2xl"
       >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-orange-600">Preferences</p>
-            <h2 className="mt-1 text-xl font-semibold">Notification settings</h2>
-            <p className="mt-1 text-sm text-slate-500">Choose how Mausam should notify you.</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-orange-500">Preferences</p>
+            <h2 className="mt-1 text-xl font-semibold text-foreground">Notification settings</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Choose how Mausam should notify you.</p>
           </div>
-          <button onClick={onClose} aria-label="Close settings" className="rounded-lg p-2 text-slate-400 hover:bg-slate-100">
+          <button onClick={onClose} aria-label="Close settings" className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
             <X size={18} />
           </button>
         </div>
 
         <div className="mt-8">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Alert types</p>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Alert types</p>
           {preferenceRows.map(([key, title, description]) => (
-            <label key={key} className="flex cursor-pointer items-center justify-between border-b border-slate-100 py-4">
+            <label key={key} className="flex cursor-pointer items-center justify-between border-b border-border py-4">
               <span>
-                <span className="block text-sm font-medium text-slate-800">{title}</span>
-                <span className="mt-1 block text-xs text-slate-400">{description}</span>
+                <span className="block text-sm font-medium text-foreground">{title}</span>
+                <span className="mt-1 block text-xs text-muted-foreground">{description}</span>
               </span>
               <input
                 type="checkbox"
@@ -730,12 +741,12 @@ function SettingsPanel({
         </div>
 
         <div className="mt-8">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Delivery channels</p>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Delivery channels</p>
           {(['email', 'push'] as const).map((key) => (
-            <label key={key} className="flex items-center justify-between border-b border-slate-100 py-4 cursor-pointer">
+            <label key={key} className="flex items-center justify-between border-b border-border py-4 cursor-pointer">
               <span>
-                <span className="block text-sm font-medium capitalize text-slate-800">{key} notifications</span>
-                <span className="mt-1 block text-xs text-slate-400">
+                <span className="block text-sm font-medium capitalize text-foreground">{key} notifications</span>
+                <span className="mt-1 block text-xs text-muted-foreground">
                   {key === 'email' ? 'Receive alerts in your inbox' : 'Receive alerts on supported devices'}
                 </span>
               </span>
@@ -752,13 +763,13 @@ function SettingsPanel({
         <div className="mt-8 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
+            className="flex-1 rounded-lg border border-border px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted transition"
           >
             Cancel
           </button>
           <button
             onClick={onSave}
-            className="flex-1 rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 transition"
+            className="flex-1 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition"
           >
             {saved ? (
               <span className="inline-flex items-center gap-2">
@@ -777,21 +788,21 @@ function SettingsPanel({
 function DiscardDialog({ onKeep, onDiscard }: { onKeep: () => void; onDiscard: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-30 grid place-items-center bg-slate-950/30 p-4"
+      className="fixed inset-0 z-30 grid place-items-center bg-black/50 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="discard-title"
     >
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
-        <h2 id="discard-title" className="text-lg font-semibold">
+      <div className="w-full max-w-sm rounded-2xl bg-card border border-border p-6 shadow-2xl">
+        <h2 id="discard-title" className="text-lg font-semibold text-foreground">
           Discard unsaved changes?
         </h2>
-        <p className="mt-2 text-sm leading-6 text-slate-500">Your notification preferences have not been saved.</p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">Your notification preferences have not been saved.</p>
         <div className="mt-6 flex gap-3">
-          <button onClick={onKeep} className="flex-1 rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold">
+          <button onClick={onKeep} className="flex-1 rounded-lg border border-border px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted">
             Keep editing
           </button>
-          <button onClick={onDiscard} className="flex-1 rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white">
+          <button onClick={onDiscard} className="flex-1 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
             Discard
           </button>
         </div>
