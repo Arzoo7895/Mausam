@@ -33,10 +33,53 @@ export async function getProfileServer() {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return null
 
-    const [profileRes, prefRes] = await Promise.all([
+    let [profileRes, prefRes] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
       supabase.from('user_preferences').select('*').eq('user_id', user.id).maybeSingle(),
     ])
+
+    const meta = user.user_metadata || {}
+    const metaName = (
+      meta.full_name?.trim() ||
+      meta.name?.trim() ||
+      meta.fullName?.trim() ||
+      meta.display_name?.trim() ||
+      ''
+    )
+
+    // Self-healing: If profiles row is missing or full_name is empty, sync from user_metadata
+    if ((!profileRes.data || !profileRes.data.full_name?.trim()) && metaName) {
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        full_name: metaName,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
+
+      const refetched = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
+      if (refetched.data) {
+        profileRes = refetched
+      }
+    }
+
+    if (!prefRes.data) {
+      await supabase.from('user_preferences').upsert({
+        user_id: user.id,
+        temperature_unit: 'celsius',
+        wind_unit: 'kmh',
+        theme: 'system',
+        language: 'en',
+        persona: 'traveler',
+        alerts: true,
+        daily_brief: true,
+        severe_weather: true,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' })
+
+      const refetchedPref = await supabase.from('user_preferences').select('*').eq('user_id', user.id).maybeSingle()
+      if (refetchedPref.data) {
+        prefRes = refetchedPref
+      }
+    }
 
     return {
       user: {
@@ -49,6 +92,36 @@ export async function getProfileServer() {
     }
   } catch {
     return null
+  }
+}
+
+export async function ensureUserProfileServer(fallbackName?: string) {
+  try {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) return { success: false, error: 'Not authenticated' }
+
+    const meta = user.user_metadata || {}
+    const targetName = (
+      fallbackName?.trim() ||
+      meta.full_name?.trim() ||
+      meta.name?.trim() ||
+      meta.fullName?.trim() ||
+      meta.display_name?.trim() ||
+      ''
+    )
+
+    if (targetName) {
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        full_name: targetName,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
+    }
+
+    return { success: true, fullName: targetName }
+  } catch (err: any) {
+    return { success: false, error: err?.message }
   }
 }
 

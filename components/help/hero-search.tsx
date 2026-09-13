@@ -3,8 +3,9 @@
 import { ArrowRight, FileText, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { searchArticles  } from '@/lib/search'
+import { searchArticles } from '@/lib/search'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/lib/i18n'
 
 const SUGGESTIONS = [
   'AI Daily Brief',
@@ -14,6 +15,7 @@ const SUGGESTIONS = [
 ]
 
 export function HeroSearch() {
+  const { t } = useI18n()
   const router = useRouter()
   const [query, setQuery] = useState('')
   const [focused, setFocused] = useState(false)
@@ -68,8 +70,8 @@ export function HeroSearch() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onKeyDown={onKey}
-          placeholder="Search for answers — try “AI Daily Brief”"
-          aria-label="Search the help center"
+          placeholder={t('help.searchPlaceholder')}
+          aria-label={t('help.searchHelp')}
           className="h-14 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground sm:text-lg"
         />
       </div>
@@ -78,9 +80,9 @@ export function HeroSearch() {
         <div className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-border bg-popover p-2 text-left shadow-2xl animate-in fade-in-0 slide-in-from-top-1">
           {results.length === 0 ? (
             <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-              No matches. Try another term or{' '}
+              {t('help.noMatches')}{' '}
               <a href="/help-center/contact" className="text-primary underline-offset-4 hover:underline">
-                contact support
+                {t('help.contactSupport')}
               </a>
               .
             </p>
@@ -116,7 +118,7 @@ export function HeroSearch() {
 
       {!showPanel && (
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-          <span className="text-sm text-muted-foreground">Popular:</span>
+          <span className="text-sm text-muted-foreground">{t('help.popular')}</span>
           {SUGGESTIONS.map((s) => (
             <button
               key={s}

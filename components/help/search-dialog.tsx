@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { searchArticles } from '@/lib/search'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/lib/i18n'
 
 const POPULAR = [
   'AI Daily Brief',
@@ -14,6 +15,7 @@ const POPULAR = [
 ]
 
 export function SearchDialog() {
+  const { t } = useI18n()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -82,10 +84,10 @@ export function SearchDialog() {
         type="button"
         onClick={() => setOpen(true)}
         className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-        aria-label="Search the help center"
+        aria-label={t('help.searchHelp')}
       >
         <Search className="size-4" aria-hidden="true" />
-        <span className="hidden sm:inline">Search help</span>
+        <span className="hidden sm:inline">{t('help.searchHelp')}</span>
         <kbd className="ml-1 hidden rounded border border-border bg-muted px-1.5 font-mono text-[11px] text-muted-foreground sm:inline">
           ⌘K
         </kbd>
@@ -102,7 +104,7 @@ export function SearchDialog() {
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Search help articles"
+            aria-label={t('help.searchHelp')}
             className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-popover shadow-2xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
           >
             <div className="flex items-center gap-3 border-b border-border px-4">
@@ -115,7 +117,7 @@ export function SearchDialog() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onInputKey}
-                placeholder="Search articles, guides, and FAQs…"
+                placeholder={t('help.searchArticlesPlaceholder')}
                 className="h-14 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground"
                 aria-label="Search query"
                 aria-controls="search-results"
@@ -133,18 +135,14 @@ export function SearchDialog() {
             <div id="search-results" className="max-h-[52vh] overflow-y-auto p-2">
               {query && results.length === 0 && (
                 <p className="px-3 py-8 text-center text-sm text-muted-foreground">
-                  No results for{' '}
-                  <span className="font-medium text-foreground">
-                    &ldquo;{query}&rdquo;
-                  </span>
-                  . Try a different term or contact support.
+                  {t('help.noResultsFor', { query })}
                 </p>
               )}
 
               {!query && (
                 <div className="p-2">
                   <p className="px-2 pb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Popular searches
+                    {t('help.popularSearches')}
                   </p>
                   <div className="flex flex-wrap gap-2 px-1">
                     {POPULAR.map((p) => (

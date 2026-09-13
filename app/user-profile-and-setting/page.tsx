@@ -92,7 +92,7 @@ export default function Page() {
     if (!profileLoading && !saving) {
       setSettings((prev) => ({
         ...prev,
-        name: profile.fullName || (user?.email ? user.email.split('@')[0] : ''),
+        name: profile.fullName || '',
         email: user?.email || profile.email || '',
         location: profile.homeLocation || '',
         bio: profile.bio || '',

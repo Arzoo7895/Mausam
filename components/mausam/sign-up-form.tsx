@@ -42,12 +42,16 @@ export function SignUpForm() {
     try {
       const supabase = createClient()
       const { data: signUpData, error } = await supabase.auth.signUp({
-        email: values.email,
+        email: values.email.trim(),
         password: values.password,
         options: {
           emailRedirectTo:
             process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? `${window.location.origin}/auth/callback`,
-          data: { full_name: values.fullName },
+          data: {
+            full_name: values.fullName.trim(),
+            name: values.fullName.trim(),
+            fullName: values.fullName.trim(),
+          },
         },
       })
 
@@ -72,11 +76,25 @@ export function SignUpForm() {
         // Ensure profile exists in public.profiles with the user's name
         if (signUpData.user) {
           try {
-            await supabase.from("profiles").upsert({
-              id: signUpData.user.id,
-              full_name: values.fullName,
-              updated_at: new Date().toISOString(),
-            })
+            await Promise.all([
+              supabase.from("profiles").upsert({
+                id: signUpData.user.id,
+                full_name: values.fullName.trim(),
+                updated_at: new Date().toISOString(),
+              }, { onConflict: 'id' }),
+              supabase.from("user_preferences").upsert({
+                user_id: signUpData.user.id,
+                temperature_unit: 'celsius',
+                wind_unit: 'kmh',
+                theme: 'system',
+                language: 'en',
+                persona: 'traveler',
+                alerts: true,
+                daily_brief: true,
+                severe_weather: true,
+                updated_at: new Date().toISOString(),
+              }, { onConflict: 'user_id' }),
+            ])
           } catch {
             // Ignore error here as DB trigger may also populate profile
           }

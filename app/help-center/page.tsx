@@ -1,3 +1,5 @@
+'use client'
+
 import { ArrowRight, LifeBuoy, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { CategoryCard } from '@/components/help/category-card'
@@ -6,6 +8,7 @@ import { SiteFooter } from '@/components/help/site-footer'
 import { SiteHeader } from '@/components/help/site-header'
 import { StatusPill } from '@/components/help/status-pill'
 import { articles, categories, getCategory } from '@/lib/help-content'
+import { useI18n } from '@/lib/i18n'
 
 const POPULAR_SLUGS = [
   'what-is-daily-brief',
@@ -16,7 +19,28 @@ const POPULAR_SLUGS = [
   'location-not-detected',
 ]
 
+const ARTICLE_TITLE_MAP: Record<string, string> = {
+  'what-is-daily-brief': 'help.artWhatIsDailyBrief',
+  'set-up-alerts': 'help.artSetUpAlerts',
+  'reading-the-forecast': 'help.artReadingTheForecast',
+  'create-your-account': 'help.artCreateYourAccount',
+  'privacy-and-location': 'help.artPrivacyAndLocation',
+  'location-not-detected': 'help.artLocationNotDetected',
+}
+
+const CATEGORY_TITLE_MAP: Record<string, string> = {
+  'getting-started': 'help.catGettingStarted',
+  'account-profile': 'help.catAccountProfile',
+  'forecasts-maps': 'help.catForecastsMaps',
+  'ai-daily-brief': 'help.catAiDailyBrief',
+  'notifications-alerts': 'help.catNotificationsAlerts',
+  'privacy-security': 'help.catPrivacySecurity',
+  'troubleshooting': 'help.catTroubleshooting',
+  'contact-support': 'help.catContactSupport',
+}
+
 export default function HomePage() {
+  const { t } = useI18n()
   const popular = POPULAR_SLUGS.map((s) =>
     articles.find((a) => a.slug === s),
   ).filter((a): a is (typeof articles)[number] => Boolean(a))
@@ -40,11 +64,10 @@ export default function HomePage() {
               <StatusPill />
             </div>
             <h1 className="mx-auto max-w-3xl text-balance font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              How can we help you today?
+              {t('help.headerTitle')}
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-balance text-lg text-muted-foreground">
-              Search guides and answers for forecasts, maps, the AI Daily Brief,
-              alerts, and your account.
+              {t('help.headerSubtitle')}
             </p>
             <div className="mt-8">
               <HeroSearch />
@@ -57,10 +80,10 @@ export default function HomePage() {
           <div className="mb-8 flex items-end justify-between">
             <div>
               <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">
-                Browse by topic
+                {t('help.browseByTopic')}
               </h2>
               <p className="mt-1 text-muted-foreground">
-                Everything you need, organized by what you are trying to do.
+                {t('help.browseSubtitle')}
               </p>
             </div>
           </div>
@@ -74,26 +97,33 @@ export default function HomePage() {
         {/* Popular articles */}
         <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
           <h2 className="mb-6 font-display text-2xl font-semibold tracking-tight text-foreground">
-            Popular articles
+            {t('help.popularArticles')}
           </h2>
           <div className="grid gap-3 md:grid-cols-2">
-            {popular.map((a) => (
-              <Link
-                key={a.slug}
-                href={`/help-center/articles/${a.slug}`}
-                className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary/40"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate font-medium text-foreground">
-                    {a.title}
+            {popular.map((a) => {
+              const artTitleKey = ARTICLE_TITLE_MAP[a.slug]
+              const artTitle = artTitleKey ? t(artTitleKey) : a.title
+              const catTitleKey = CATEGORY_TITLE_MAP[a.category]
+              const catTitle = catTitleKey ? t(catTitleKey) : (getCategory(a.category)?.title || '')
+
+              return (
+                <Link
+                  key={a.slug}
+                  href={`/help-center/articles/${a.slug}`}
+                  className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary/40"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate font-medium text-foreground">
+                      {artTitle}
+                    </span>
+                    <span className="block truncate text-sm text-muted-foreground">
+                      {catTitle} · {t('help.minRead', { count: a.readMinutes })}
+                    </span>
                   </span>
-                  <span className="block truncate text-sm text-muted-foreground">
-                    {getCategory(a.category)?.title} · {a.readMinutes} min read
-                  </span>
-                </span>
-                <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" aria-hidden="true" />
-              </Link>
-            ))}
+                  <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" aria-hidden="true" />
+                </Link>
+              )
+            })}
           </div>
         </section>
 
@@ -109,10 +139,10 @@ export default function HomePage() {
               </span>
               <span>
                 <span className="font-display text-base font-semibold text-foreground">
-                  Still need help?
+                  {t('help.stillNeedHelp')}
                 </span>
                 <span className="mt-1 block text-sm text-muted-foreground">
-                  Reach our support team — we usually reply within a day.
+                  {t('help.reachSupport')}
                 </span>
               </span>
             </Link>
@@ -125,10 +155,10 @@ export default function HomePage() {
               </span>
               <span>
                 <span className="font-display text-base font-semibold text-foreground">
-                  System status
+                  {t('help.systemStatus')}
                 </span>
                 <span className="mt-1 block text-sm text-muted-foreground">
-                  Check the live health of forecasts, maps, and alerts.
+                  {t('help.checkHealth')}
                 </span>
               </span>
             </Link>

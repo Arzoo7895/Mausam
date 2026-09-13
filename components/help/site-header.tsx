@@ -1,16 +1,21 @@
+'use client'
+
 import Link from 'next/link'
 import { Logo } from '@/components/help/logo'
 import { SearchDialog } from '@/components/help/search-dialog'
 import { ThemeToggle } from '@/components/help/theme-toggle'
 import { LanguageSwitcher } from '@/components/language-switcher'
-
-const nav = [
-  { label: 'Help Center', href: '/help-center' },
-  { label: 'Contact', href: '/help-center/contact' },
-  { label: 'Status', href: '/help-center/status' },
-]
+import { useI18n } from '@/lib/i18n'
 
 export function SiteHeader() {
+  const { t } = useI18n()
+
+  const nav = [
+    { label: t('nav.help'), href: '/help-center' },
+    { label: t('help.contact'), href: '/help-center/contact' },
+    { label: t('help.status'), href: '/help-center/status' },
+  ]
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -39,7 +44,7 @@ export function SiteHeader() {
             href="/dashboard"
             className="ml-1 hidden rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:inline-block"
           >
-            Open app
+            {t('nav.openApp')}
           </Link>
         </div>
       </div>

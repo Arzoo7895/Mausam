@@ -38,7 +38,10 @@ export function LoginForm() {
 
     try {
       const supabase = createClient()
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      })
 
       if (signInError) {
         setLoading(false)
@@ -55,6 +58,60 @@ export function LoginForm() {
           setError(signInError.message || "Something went wrong. Please try again.")
         }
         return
+      }
+
+      // Self-heal profile and preferences from user_metadata upon successful login
+      if (signInData?.user) {
+        const meta = signInData.user.user_metadata || {}
+        const metaName = (
+          meta.full_name?.trim() ||
+          meta.name?.trim() ||
+          meta.fullName?.trim() ||
+          meta.display_name?.trim() ||
+          ''
+        )
+
+        try {
+          // Check existing profile
+          const { data: existingProfile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', signInData.user.id)
+            .maybeSingle()
+
+          // If profile missing or empty, and we have name from signup, write it to public.profiles
+          if ((!existingProfile || !existingProfile.full_name?.trim()) && metaName) {
+            await supabase.from('profiles').upsert({
+              id: signInData.user.id,
+              full_name: metaName,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'id' })
+          }
+
+          // Ensure default preferences exist
+          const { data: existingPref } = await supabase
+            .from('user_preferences')
+            .select('user_id')
+            .eq('user_id', signInData.user.id)
+            .maybeSingle()
+
+          if (!existingPref) {
+            await supabase.from('user_preferences').upsert({
+              user_id: signInData.user.id,
+              temperature_unit: 'celsius',
+              wind_unit: 'kmh',
+              theme: 'system',
+              language: 'en',
+              persona: 'traveler',
+              alerts: true,
+              daily_brief: true,
+              severe_weather: true,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'user_id' })
+          }
+        } catch {
+          // Non-blocking: background sync failure should not prevent login navigation
+        }
       }
 
       router.push("/dashboard")

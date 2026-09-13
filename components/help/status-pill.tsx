@@ -1,21 +1,33 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { summarizeStatus, type StatusRow } from '@/lib/status'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/lib/i18n'
 
-export async function StatusPill() {
-  let rows: StatusRow[] = []
-  try {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('system_status')
-      .select('component, status')
-    rows = (data as StatusRow[]) ?? []
-  } catch {
-    rows = []
-  }
+export function StatusPill() {
+  const { t } = useI18n()
+  const [rows, setRows] = useState<StatusRow[]>([])
+
+  useEffect(() => {
+    async function loadStatus() {
+      try {
+        const supabase = createClient()
+        const { data } = await supabase
+          .from('system_status')
+          .select('component, status')
+        if (data) setRows(data as StatusRow[])
+      } catch {}
+    }
+    loadStatus()
+  }, [])
 
   const summary = summarizeStatus(rows)
+  const label = summary.level === 'operational'
+    ? t('help.allOperational')
+    : summary.label
 
   return (
     <Link
@@ -36,7 +48,7 @@ export async function StatusPill() {
           )}
         />
       </span>
-      {summary.label}
+      {label}
     </Link>
   )
 }

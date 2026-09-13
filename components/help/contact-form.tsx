@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Input } from '@/components/ui/input'
+import { useI18n } from '@/lib/i18n'
 
 const schema = z.object({
   name: z.string().min(2, 'Please enter your name.'),
@@ -17,15 +18,16 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>
 
-const TOPICS: { value: FormValues['topic']; label: string }[] = [
-  { value: 'account', label: 'Account & profile' },
-  { value: 'forecasts', label: 'Forecasts & maps' },
-  { value: 'alerts', label: 'Notifications & alerts' },
-  { value: 'billing', label: 'Billing' },
-  { value: 'other', label: 'Something else' },
+const TOPIC_KEYS: { value: FormValues['topic']; key: string }[] = [
+  { value: 'account', key: 'help.topicAccount' },
+  { value: 'forecasts', key: 'help.topicForecasts' },
+  { value: 'alerts', key: 'help.topicAlerts' },
+  { value: 'billing', key: 'help.topicBilling' },
+  { value: 'other', key: 'help.topicOther' },
 ]
 
 export function ContactForm() {
+  const { t } = useI18n()
   const [submitted, setSubmitted] = useState(false)
   const {
     register,
@@ -49,11 +51,10 @@ export function ContactForm() {
           <Check className="size-6 text-success" aria-hidden="true" />
         </span>
         <h2 className="mt-4 font-display text-xl font-semibold text-foreground">
-          Message sent
+          {t('help.formMessageSent')}
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          Thanks for reaching out. Our support team typically replies within one
-          business day. A confirmation has been sent to your email.
+          {t('help.formSuccessDesc')}
         </p>
       </div>
     )
@@ -72,14 +73,14 @@ export function ContactForm() {
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="name" className={labelClass}>
-            Name
+            {t('help.formName')}
           </label>
           <Input id="name" {...register('name')} aria-invalid={!!errors.name} />
           {errors.name && <p className={errorClass}>{errors.name.message}</p>}
         </div>
         <div>
           <label htmlFor="email" className={labelClass}>
-            Email
+            {t('help.formEmail')}
           </label>
           <Input
             id="email"
@@ -93,16 +94,16 @@ export function ContactForm() {
 
       <div className="mt-5">
         <label htmlFor="topic" className={labelClass}>
-          Topic
+          {t('help.formTopic')}
         </label>
         <select
           id="topic"
           {...register('topic')}
           className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
         >
-          {TOPICS.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
+          {TOPIC_KEYS.map((item) => (
+            <option key={item.value} value={item.value}>
+              {t(item.key)}
             </option>
           ))}
         </select>
@@ -110,7 +111,7 @@ export function ContactForm() {
 
       <div className="mt-5">
         <label htmlFor="subject" className={labelClass}>
-          Subject
+          {t('help.formSubject')}
         </label>
         <Input
           id="subject"
@@ -122,7 +123,7 @@ export function ContactForm() {
 
       <div className="mt-5">
         <label htmlFor="message" className={labelClass}>
-          How can we help?
+          {t('help.formMessage')}
         </label>
         <textarea
           id="message"
@@ -142,7 +143,7 @@ export function ContactForm() {
         {isSubmitting && (
           <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
         )}
-        {isSubmitting ? 'Sending…' : 'Send message'}
+        {isSubmitting ? t('help.formSending') : t('help.formSendMessage')}
       </button>
     </form>
   )

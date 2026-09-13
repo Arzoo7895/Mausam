@@ -1,10 +1,32 @@
+'use client'
+
 import { ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { CategoryIcon } from '@/components/help/category-icon'
 import { articlesByCategory, type Category } from '@/lib/help-content'
+import { useI18n } from '@/lib/i18n'
+
+const CATEGORY_LOCALIZATION_MAP: Record<string, { title: string; desc: string }> = {
+  'getting-started': { title: 'help.catGettingStarted', desc: 'help.catGettingStartedDesc' },
+  'account-profile': { title: 'help.catAccountProfile', desc: 'help.catAccountProfileDesc' },
+  'forecasts-maps': { title: 'help.catForecastsMaps', desc: 'help.catForecastsMapsDesc' },
+  'ai-daily-brief': { title: 'help.catAiDailyBrief', desc: 'help.catAiDailyBriefDesc' },
+  'notifications-alerts': { title: 'help.catNotificationsAlerts', desc: 'help.catNotificationsAlertsDesc' },
+  'privacy-security': { title: 'help.catPrivacySecurity', desc: 'help.catPrivacySecurityDesc' },
+  'troubleshooting': { title: 'help.catTroubleshooting', desc: 'help.catTroubleshootingDesc' },
+  'contact-support': { title: 'help.catContactSupport', desc: 'help.catContactSupportDesc' },
+}
 
 export function CategoryCard({ category }: { category: Category }) {
+  const { t } = useI18n()
   const count = articlesByCategory(category.slug).length
+  const loc = CATEGORY_LOCALIZATION_MAP[category.slug]
+
+  const title = loc ? t(loc.title) : category.title
+  const description = loc ? t(loc.desc) : category.description
+  const articleLabel = count === 1
+    ? t('help.articleCountSingle', { count })
+    : t('help.articleCount', { count })
 
   return (
     <Link
@@ -18,13 +40,13 @@ export function CategoryCard({ category }: { category: Category }) {
         <ArrowUpRight className="size-4 text-muted-foreground/50 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" aria-hidden="true" />
       </div>
       <h3 className="mt-4 font-display text-base font-semibold text-foreground">
-        {category.title}
+        {title}
       </h3>
       <p className="mt-1 flex-1 text-sm leading-relaxed text-muted-foreground">
-        {category.description}
+        {description}
       </p>
       <p className="mt-4 text-xs font-medium text-muted-foreground">
-        {count} {count === 1 ? 'article' : 'articles'}
+        {articleLabel}
       </p>
     </Link>
   )

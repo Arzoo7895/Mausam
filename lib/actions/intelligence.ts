@@ -51,10 +51,26 @@ export async function getWeatherIntelligenceServer(location?: {
       const pData = profileRes.data
       const prefData = prefRes.data
 
+      const meta = user.user_metadata || {}
+      const metaName = (
+        meta.full_name?.trim() ||
+        meta.name?.trim() ||
+        meta.fullName?.trim() ||
+        meta.display_name?.trim() ||
+        ''
+      )
+
       if (pData?.full_name?.trim()) {
         userName = pData.full_name.trim().split(/\s+/)[0]
-      } else if (user.user_metadata?.full_name) {
-        userName = user.user_metadata.full_name.split(/\s+/)[0]
+      } else if (metaName) {
+        userName = metaName.split(/\s+/)[0]
+        try {
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            full_name: metaName,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'id' })
+        } catch {}
       }
 
       if (prefData?.persona && ['student', 'farmer', 'commuter', 'traveler'].includes(prefData.persona)) {

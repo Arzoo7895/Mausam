@@ -28,19 +28,43 @@ export async function GET(request: Request) {
           .eq('id', user.id)
           .maybeSingle()
 
-        if (!profile) {
-          const fullName =
-            user.user_metadata?.full_name ||
-            user.user_metadata?.name ||
-            user.email?.split('@')[0] ||
-            'Mausam User'
+        const meta = user.user_metadata || {}
+        const metaName = (
+          meta.full_name?.trim() ||
+          meta.name?.trim() ||
+          meta.fullName?.trim() ||
+          meta.display_name?.trim() ||
+          ''
+        )
 
-          await supabase.from('profiles').insert({
+        if ((!profile || !profile.full_name?.trim()) && metaName) {
+          await supabase.from('profiles').upsert({
             id: user.id,
-            full_name: fullName,
-            created_at: new Date().toISOString(),
+            full_name: metaName,
             updated_at: new Date().toISOString(),
-          })
+          }, { onConflict: 'id' })
+        }
+
+        // Ensure user_preferences row exists
+        const { data: pref } = await supabase
+          .from('user_preferences')
+          .select('user_id')
+          .eq('user_id', user.id)
+          .maybeSingle()
+
+        if (!pref) {
+          await supabase.from('user_preferences').upsert({
+            user_id: user.id,
+            temperature_unit: 'celsius',
+            wind_unit: 'kmh',
+            theme: 'system',
+            language: 'en',
+            persona: 'traveler',
+            alerts: true,
+            daily_brief: true,
+            severe_weather: true,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'user_id' })
         }
       } catch (profileErr) {
         console.warn('Profile sync on auth callback error:', profileErr)

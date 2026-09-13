@@ -115,10 +115,52 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       const pData = profileRes.data
       const prefData = prefRes.data
 
+      const meta = authUser.user_metadata || {}
+      const metaName = (
+        meta.full_name?.trim() ||
+        meta.name?.trim() ||
+        meta.fullName?.trim() ||
+        meta.display_name?.trim() ||
+        ''
+      )
+
       // public.profiles is the primary source of truth for the user's name
-      const resolvedName = (pData?.full_name !== undefined && pData?.full_name !== null && pData.full_name.trim() !== '')
+      let resolvedName = (pData?.full_name !== undefined && pData?.full_name !== null && pData.full_name.trim() !== '')
         ? pData.full_name.trim()
-        : (authUser.user_metadata?.full_name?.trim() || '')
+        : metaName
+
+      // Self-healing: If public.profiles row is missing or full_name is empty, but we have metaName:
+      if ((!pData || !pData.full_name?.trim()) && metaName) {
+        resolvedName = metaName
+        try {
+          supabase.from('profiles').upsert({
+            id: authUser.id,
+            full_name: metaName,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'id' }).then(() => {})
+        } catch {
+          // non-blocking
+        }
+      }
+
+      if (!prefData) {
+        try {
+          supabase.from('user_preferences').upsert({
+            user_id: authUser.id,
+            temperature_unit: 'celsius',
+            wind_unit: 'kmh',
+            theme: 'system',
+            language: 'en',
+            persona: 'traveler',
+            alerts: true,
+            daily_brief: true,
+            severe_weather: true,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'user_id' }).then(() => {})
+        } catch {
+          // non-blocking
+        }
+      }
 
       const loadedProfile: UserProfile = {
         fullName: resolvedName,
@@ -252,9 +294,6 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     if (!user) return ''
     if (profile.fullName && profile.fullName.trim()) {
       return profile.fullName.trim()
-    }
-    if (user.email) {
-      return user.email.split('@')[0]
     }
     return ''
   }, [profile.fullName, user])
