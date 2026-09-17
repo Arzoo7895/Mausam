@@ -1,4 +1,5 @@
 import { Cta } from '@/components/cta'
+import { MobileEntryIntro } from '@/components/mobile-entry-intro'
 import { Faq } from '@/components/faq'
 import { Features } from '@/components/features'
 import { Hero } from '@/components/hero'
@@ -12,7 +13,9 @@ import { WhyChoose } from '@/components/why-choose'
 
 export default function Page() {
   return (
-    <div className="relative min-h-screen">
+    <>
+      <MobileEntryIntro />
+      <div className="relative min-h-screen">
       <a
         href="#features"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
@@ -32,6 +35,7 @@ export default function Page() {
         <Cta />
       </main>
       <SiteFooter />
-    </div>
+      </div>
+    </>
   )
 }
