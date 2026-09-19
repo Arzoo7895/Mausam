@@ -372,7 +372,7 @@ export function AlertsDashboard({
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1440px] px-6 py-8 lg:px-10">
+      <div className="mx-auto max-w-[1440px] px-3 py-6 sm:px-6 sm:py-8 lg:px-10">
         <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <p className="text-sm text-muted-foreground">{t('alerts.subtitle')}</p>
@@ -513,7 +513,7 @@ export function AlertsDashboard({
           )}
         </div>
 
-        <section className="mt-8 rounded-xl border border-border bg-card p-6 shadow-sm">
+        <section className="mt-8 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-orange-600">
@@ -656,7 +656,7 @@ function DetailPanel({ alert, onClose }: { alert: WeatherAlert; onClose: () => v
     >
       <aside
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-card border border-border p-6 shadow-2xl sm:rounded-2xl"
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-border bg-card p-4 shadow-2xl sm:rounded-2xl sm:p-6"
       >
         <div className="flex items-start justify-between">
           <div>
@@ -718,7 +718,7 @@ function SettingsPanel({
     <div className="fixed inset-0 z-20 flex justify-end bg-black/50 backdrop-blur-[2px]" onClick={onClose}>
       <aside
         onClick={(e) => e.stopPropagation()}
-        className="h-full w-full max-w-md overflow-y-auto bg-card border-l border-border p-6 shadow-2xl"
+        className="h-full w-full max-w-md overflow-y-auto border-l border-border bg-card p-4 shadow-2xl sm:p-6"
       >
         <div className="flex items-center justify-between">
           <div>

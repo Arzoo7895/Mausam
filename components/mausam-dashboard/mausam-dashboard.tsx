@@ -191,12 +191,12 @@ export default function MausamDashboard() {
   return (
     <main className="min-h-screen bg-background pb-28 text-foreground transition-colors duration-500">
       <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-4 md:px-8">
+        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2 px-4 py-4 md:flex-nowrap md:px-8">
           <Link href="/" aria-label="Mausam AI home" className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Sun size={19} /></div>
             <div><p className="font-semibold tracking-tight">Mausam <span className="text-primary">AI</span></p><p className="hidden text-[10px] font-medium uppercase tracking-[.18em] text-muted-foreground sm:block">Weather intelligence</p></div>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center justify-end gap-1 sm:gap-2">
             {effectiveIsGuest && (
               <Link
                 href="/login"
@@ -240,14 +240,14 @@ export default function MausamDashboard() {
             <h1 className="text-3xl font-semibold tracking-[-.04em] md:text-4xl">{getGreetingText()}{displayGreetingName ? `, ${displayGreetingName}` : ''}</h1>
             <p className="mt-2 text-sm text-muted-foreground">{dateLabel}</p>
           </div>
-          <div className="flex gap-2">
-            <button onClick={() => setSearchOpen(true)} className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted"><Plus size={16} /> {t('dashboard.addLocation')}</button>
-            <button onClick={useMyLocation} disabled={locating} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">{locating ? <Loader2 size={16} className="animate-spin" /> : <LocateFixed size={16} />} {locating ? t('dashboard.locating') : t('dashboard.useMyLocation')}</button>
+          <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+            <button onClick={() => setSearchOpen(true)} className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-medium hover:bg-muted sm:flex-none sm:px-4"><Plus size={16} /> {t('dashboard.addLocation')}</button>
+            <button onClick={useMyLocation} disabled={locating} className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60 sm:flex-none sm:px-4">{locating ? <Loader2 size={16} className="animate-spin" /> : <LocateFixed size={16} />} {locating ? t('dashboard.locating') : t('dashboard.useMyLocation')}</button>
           </div>
         </div>
 
         {alertOpen && alerts.length > 0 ? (
-          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/8 px-4 py-3">
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex flex-wrap items-start justify-between gap-3 rounded-xl border border-primary/20 bg-primary/8 px-3 py-3 sm:px-4">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-primary/15 p-2 text-primary"><ShieldAlert size={18} /></div>
               <p className="text-sm">
@@ -258,7 +258,7 @@ export default function MausamDashboard() {
             <button aria-label="Dismiss alert" onClick={() => setAlertOpen(false)} className="text-muted-foreground hover:text-foreground"><X size={17} /></button>
           </motion.div>
         ) : alertOpen && today && today.precipProb >= 40 ? (
-          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/8 px-4 py-3">
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex flex-wrap items-start justify-between gap-3 rounded-xl border border-primary/20 bg-primary/8 px-3 py-3 sm:px-4">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-primary/15 p-2 text-primary"><ShieldAlert size={18} /></div>
               <p className="text-sm">
@@ -331,7 +331,7 @@ export default function MausamDashboard() {
         <Card className="mt-5 p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold">{t('dashboard.next6Hours')}</h2><p className="mt-1 text-xs text-muted-foreground">{t('dashboard.rainProbSubtitle', { location: active?.name ?? 'your location' })}</p></div><Umbrella size={18} className="text-primary" /></div>{data?.hourly?.length ? <div className="mt-5 flex h-32 items-end gap-2">{data.hourly.slice(0, 6).map((point) => <div key={point.time} className="flex min-w-0 flex-1 flex-col items-center gap-2"><span className="text-[10px] font-medium">{point.precipProb}%</span><div className="flex h-20 w-full items-end rounded-lg bg-muted"><div className="w-full rounded-lg bg-primary transition-all" style={{ height: `${Math.max(4, point.precipProb)}%` }} /></div><span className="truncate text-[10px] text-muted-foreground">{point.label}</span></div>)}</div> : <div className="mt-5 rounded-xl bg-muted px-4 py-8 text-center text-sm text-muted-foreground">{loading ? 'Loading live rain probability…' : 'No hourly precipitation data available.'}</div>}</Card>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr_1fr]">
-          <Card className="p-6 lg:col-span-2"><div className="flex items-center justify-between"><div><h2 className="font-semibold">{t('dashboard.forecast7Day')}</h2><p className="mt-1 text-xs text-muted-foreground">{t('dashboard.planAhead')}</p></div><Link href="/forecast" className="flex items-center gap-1 text-xs font-medium text-primary">{t('dashboard.fullForecast')} <ArrowUpRight size={14} /></Link></div><div className="mt-5 grid grid-cols-7 gap-1">{(data?.daily ?? []).map((d, i) => <div key={d.date} className={`flex flex-col items-center gap-3 rounded-xl px-1 py-3 ${i === 0 ? 'bg-muted' : ''}`}><span className="text-xs font-medium">{d.label}</span><WeatherIcon code={d.code} size={20} /><span className="text-sm font-semibold">{d.maxC}°</span><span className="text-xs text-muted-foreground">{d.minC}°</span><span className="text-[10px] text-primary">{d.precipProb}%</span></div>)}{!data && <div className="col-span-7 py-6 text-center text-sm text-muted-foreground">{loading ? 'Loading forecast…' : 'No forecast available.'}</div>}</div></Card>
+          <Card className="p-6 lg:col-span-2"><div className="flex items-center justify-between"><div><h2 className="font-semibold">{t('dashboard.forecast7Day')}</h2><p className="mt-1 text-xs text-muted-foreground">{t('dashboard.planAhead')}</p></div><Link href="/forecast" className="flex items-center gap-1 text-xs font-medium text-primary">{t('dashboard.fullForecast')} <ArrowUpRight size={14} /></Link></div><div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">{(data?.daily ?? []).map((d, i) => <div key={d.date} className={`flex flex-col items-center gap-3 rounded-xl px-1 py-3 ${i === 0 ? 'bg-muted' : ''}`}><span className="text-xs font-medium">{d.label}</span><WeatherIcon code={d.code} size={20} /><span className="text-sm font-semibold">{d.maxC}°</span><span className="text-xs text-muted-foreground">{d.minC}°</span><span className="text-[10px] text-primary">{d.precipProb}%</span></div>)}{!data && <div className="col-span-2 py-6 text-center text-sm text-muted-foreground sm:col-span-4 lg:col-span-7">{loading ? 'Loading forecast…' : 'No forecast available.'}</div>}</div></Card>
           <Card className="p-6"><div className="flex items-center justify-between"><h2 className="font-semibold">{t('dashboard.comfortIndex')}</h2><Gauge size={18} className="text-primary" /></div><div className="mt-5 flex items-end gap-3"><span className="text-4xl font-semibold tracking-tight">{data ? comfort.score : '—'}</span><span className="mb-1 text-sm text-muted-foreground">/ 100 · {comfort.label === 'Good' ? t('dashboard.comfortGood') : comfort.label === 'Fair' ? t('dashboard.comfortFair') : t('dashboard.comfortPoor')}</span></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${data ? comfort.score : 0}%` }} /></div><div className="mt-5 grid grid-cols-2 gap-3 text-xs"><span className="text-muted-foreground">{t('dashboard.uvIndex')} <strong className="ml-1 text-foreground">{data ? data.uvIndexMax : '—'}</strong></span><span className="text-muted-foreground">{t('dashboard.aqi')} <strong className="ml-1 text-foreground">{aqiLabel(data?.airQuality.usAqi)}</strong></span></div></Card>
         </div>
 

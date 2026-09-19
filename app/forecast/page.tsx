@@ -15,9 +15,9 @@ export default function ForecastPage() {
   const { t } = useI18n()
 
   return (
-    <main className="min-h-screen bg-background px-4 py-6 text-foreground md:px-8 md:py-10">
+    <main className="min-h-screen overflow-x-hidden bg-background px-4 py-6 text-foreground md:px-8 md:py-10">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft size={16} /> {t('nav.dashboard')}
           </Link>
@@ -27,7 +27,7 @@ export default function ForecastPage() {
           </div>
         </div>
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div><p className="text-sm text-primary">{t('forecast.liveForecast')}</p><h1 className="mt-2 text-4xl font-semibold tracking-tight">{locationLabel(active)}</h1><p className="mt-2 text-sm text-muted-foreground">{t('forecast.openMeteoAligned')}</p></div>
+          <div><p className="text-sm text-primary">{t('forecast.liveForecast')}</p><h1 className="mt-2 break-words text-3xl font-semibold tracking-tight sm:text-4xl">{locationLabel(active)}</h1><p className="mt-2 text-sm text-muted-foreground">{t('forecast.openMeteoAligned')}</p></div>
           <button onClick={refresh} className="rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-muted">{t('forecast.refreshForecast')}</button>
         </div>
         {error && <div role="alert" className="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>}
