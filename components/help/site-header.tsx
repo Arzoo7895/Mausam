@@ -18,9 +18,9 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <div className="flex items-center gap-6">
-          <Logo />
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-3 sm:gap-4 sm:px-6">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-6">
+          <Logo className="shrink-0 text-sm sm:text-lg" />
           <nav
             aria-label="Primary"
             className="hidden items-center gap-1 md:flex"
@@ -36,8 +36,8 @@ export function SiteHeader() {
             ))}
           </nav>
         </div>
-        <div className="flex items-center gap-1.5">
-          <LanguageSwitcher className="hidden sm:inline-flex" />
+        <div className="flex shrink-0 items-center gap-0.5 sm:gap-1.5">
+          <LanguageSwitcher className="inline-flex" />
           <SearchDialog />
           <ThemeToggle />
           <Link

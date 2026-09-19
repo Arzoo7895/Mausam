@@ -191,8 +191,8 @@ export default function MausamDashboard() {
   return (
     <main className="min-h-screen bg-background pb-28 text-foreground transition-colors duration-500">
       <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2 px-4 py-4 md:flex-nowrap md:px-8">
-          <Link href="/" aria-label="Mausam AI home" className="flex items-center gap-3">
+        <div className="mx-auto flex max-w-[1440px] items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4 sm:py-4 md:px-8">
+          <Link href="/" aria-label="Mausam AI home" className="flex min-w-0 shrink items-center gap-2 sm:gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Sun size={19} /></div>
             <div><p className="font-semibold tracking-tight">Mausam <span className="text-primary">AI</span></p><p className="hidden text-[10px] font-medium uppercase tracking-[.18em] text-muted-foreground sm:block">Weather intelligence</p></div>
           </Link>
