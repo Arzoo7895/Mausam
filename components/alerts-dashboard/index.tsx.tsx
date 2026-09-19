@@ -309,8 +309,8 @@ export function AlertsDashboard({
   return (
     <main className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-card/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-4 lg:px-10">
-          <div className="flex items-center gap-4">
+          <div className="mx-auto flex max-w-[1440px] flex-col gap-3 px-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-10">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
             <Link
               href="/dashboard"
               aria-label="Back to dashboard"
@@ -323,8 +323,16 @@ export function AlertsDashboard({
               <h1 className="mt-1 text-2xl font-semibold tracking-tight">{t('alerts.title')}</h1>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
+          <div className="flex w-full flex-wrap items-center justify-end gap-1.5 sm:w-auto sm:gap-3">
+            <LanguageSwitcher className="shrink-0" />
+            <button
+              type="button"
+              onClick={openSettings}
+              aria-label="Open notifications"
+              className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-foreground transition hover:bg-muted"
+            >
+              <Bell size={16} />
+            </button>
             <ThemeToggle />
             <button
               onClick={() => {
@@ -334,9 +342,10 @@ export function AlertsDashboard({
                   openSettings()
                 }
               }}
-              className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
+              aria-label={t('alerts.settingsBtn')}
+              className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-sm font-medium text-foreground transition hover:bg-muted sm:h-auto sm:w-auto sm:gap-2 sm:px-3 sm:py-2"
             >
-              <Settings2 size={16} /> {t('alerts.settingsBtn')}
+              <Settings2 size={16} /> <span className="hidden sm:inline">{t('alerts.settingsBtn')}</span>
             </button>
             <button
               onClick={() => {

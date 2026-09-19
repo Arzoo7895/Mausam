@@ -77,7 +77,7 @@ export function HeroSearch() {
       </div>
 
       {showPanel && (
-        <div className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-border bg-popover p-2 text-left shadow-2xl animate-in fade-in-0 slide-in-from-top-1">
+        <div className="relative z-30 mt-2 overflow-hidden rounded-2xl border border-border bg-popover p-2 text-left shadow-2xl animate-in fade-in-0 slide-in-from-top-1 sm:absolute sm:inset-x-0 sm:top-full">
           {results.length === 0 ? (
             <p className="px-3 py-6 text-center text-sm text-muted-foreground">
               {t('help.noMatches')}{' '}
