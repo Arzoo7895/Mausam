@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { ArrowRight } from 'lucide-react'
 
 const taglines = [
@@ -11,6 +12,7 @@ const taglines = [
 ]
 
 export function MobileEntryIntro() {
+  const router = useRouter()
   const [taglineIndex, setTaglineIndex] = useState(0)
 
   useEffect(() => {
@@ -21,7 +23,7 @@ export function MobileEntryIntro() {
   }, [])
 
   function enterAccount() {
-    window.location.assign('/auth/sign-up')
+    router.push('/auth/sign-up')
   }
 
   return (
