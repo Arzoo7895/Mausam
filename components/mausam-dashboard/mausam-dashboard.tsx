@@ -233,7 +233,7 @@ export default function MausamDashboard() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1440px] px-4 py-6 md:px-8 md:py-8">
+      <div className="mx-auto max-w-[1440px] px-4 py-4 sm:py-6 md:px-8 md:py-8">
         <div className="mb-7 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <p className="mb-2 flex items-center gap-2 text-sm text-muted-foreground"><MapPin size={14} className="text-primary" /> {locationLabel} {loading && <Loader2 size={13} className="animate-spin" />}</p>

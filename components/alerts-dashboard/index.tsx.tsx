@@ -318,9 +318,9 @@ export function AlertsDashboard({
             >
               <ArrowLeft size={18} />
             </Link>
-            <div>
+            <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Mausam AI</p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight">{t('alerts.title')}</h1>
+              <h1 className="mt-1 break-words text-2xl font-semibold tracking-tight">{t('alerts.title')}</h1>
             </div>
           </div>
           <div className="flex w-full flex-wrap items-center justify-end gap-1.5 sm:w-auto sm:gap-3">
@@ -618,7 +618,7 @@ function AlertCard({
           <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
             <MapPin size={14} className="text-muted-foreground" /> {alert.location}
           </p>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{alert.detail}</p>
+          <p className="mt-2 max-w-3xl break-words text-sm leading-6 text-muted-foreground">{alert.detail}</p>
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
             <span>{alert.relativeTime}</span>
             {alert.expiresAt && <span>Expires {alert.expiresAt}</span>}
