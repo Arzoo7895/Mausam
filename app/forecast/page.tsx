@@ -8,6 +8,7 @@ import { weatherCodeInfo } from '@/lib/weather/service'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { useI18n } from '@/lib/i18n'
+import { InternalAppHeader } from '@/components/internal-app-header'
 
 export default function ForecastPage() {
   const { active } = useActiveLocation()
@@ -17,15 +18,7 @@ export default function ForecastPage() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-background px-4 py-6 text-foreground md:px-8 md:py-10">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-          <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft size={16} /> {t('nav.dashboard')}
-          </Link>
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher />
-            <ThemeToggle />
-          </div>
-        </div>
+        <InternalAppHeader backHref="/dashboard" backLabel={t('nav.dashboard')} />
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div><p className="text-sm text-primary">{t('forecast.liveForecast')}</p><h1 className="mt-2 break-words text-3xl font-semibold tracking-tight sm:text-4xl">{locationLabel(active)}</h1><p className="mt-2 text-sm text-muted-foreground">{t('forecast.openMeteoAligned')}</p></div>
           <button onClick={refresh} className="rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-muted">{t('forecast.refreshForecast')}</button>
