@@ -27,6 +27,7 @@ import { isIndiaLocation } from '@/lib/location-service'
 import { useI18n } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { GuestAuthModal } from '@/components/guest-auth-modal'
+import { officialLogoUrl } from '@/components/mausam/logo'
 
 function WeatherIcon({ code = 0, isDay = true, size = 24 }: { code?: number; isDay?: boolean; size?: number }) {
   const { icon } = weatherCodeInfo(code)
@@ -193,8 +194,8 @@ export default function MausamDashboard() {
       <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1440px] items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4 sm:py-4 md:px-8">
           <Link href="/" aria-label="Mausam AI home" className="flex min-w-0 shrink items-center gap-2 sm:gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Sun size={19} /></div>
-            <div><p className="font-semibold tracking-tight">Mausam <span className="text-primary">AI</span></p><p className="hidden text-[10px] font-medium uppercase tracking-[.18em] text-muted-foreground sm:block">Weather intelligence</p></div>
+            <img src={officialLogoUrl} alt="Mausam AI" className="size-9 shrink-0 rounded-xl object-cover" />
+            <div className="min-w-0 max-[479px]:hidden"><p className="truncate font-semibold tracking-tight">Mausam <span className="text-primary">AI</span></p><p className="hidden text-[10px] font-medium uppercase tracking-[.18em] text-muted-foreground sm:block">Weather intelligence</p></div>
           </Link>
           <div className="flex min-w-0 flex-wrap items-center justify-end gap-1 sm:gap-2">
             {effectiveIsGuest && (

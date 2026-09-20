@@ -50,11 +50,15 @@ export const metadata: Metadata = {
   generator: 'v0.app',
   icons: {
     icon: [
-      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
+      {
+        url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202026-09-19%20at%2019.27.44-diphBTjK14zaWkToICApMTDSFOtSPR.jpeg',
+        type: 'image/jpeg',
+      },
     ],
-    apple: '/apple-icon.png',
+    shortcut:
+      'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202026-09-19%20at%2019.27.44-diphBTjK14zaWkToICApMTDSFOtSPR.jpeg',
+    apple:
+      'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202026-09-19%20at%2019.27.44-diphBTjK14zaWkToICApMTDSFOtSPR.jpeg',
   },
 }
 

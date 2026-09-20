@@ -32,6 +32,7 @@ import {
 import { useProfile } from '@/lib/profile-context'
 import { useI18n } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { officialLogoUrl } from '@/components/mausam/logo'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GuestAuthModal } from '@/components/guest-auth-modal'
 import { useActiveLocation } from '@/lib/location-context'
@@ -318,10 +319,13 @@ export function AlertsDashboard({
             >
               <ArrowLeft size={18} />
             </Link>
+          <div className="flex min-w-0 items-center gap-3">
+            <img src={officialLogoUrl} alt="Mausam AI" className="size-9 shrink-0 rounded-xl object-cover" />
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Mausam AI</p>
               <h1 className="mt-1 break-words text-2xl font-semibold tracking-tight">{t('alerts.title')}</h1>
             </div>
+          </div>
           </div>
           <div className="flex w-full flex-wrap items-center justify-end gap-1.5 sm:w-auto sm:gap-3">
             <LanguageSwitcher className="shrink-0" />
