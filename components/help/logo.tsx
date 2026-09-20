@@ -1,6 +1,6 @@
-import { CloudSun } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { officialLogoUrl } from '@/components/mausam/logo'
 
 export function Logo({ className }: { className?: string }) {
   return (
@@ -12,9 +12,11 @@ export function Logo({ className }: { className?: string }) {
       )}
       aria-label="Mausam AI Help Center home"
     >
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm sm:size-8">
-        <CloudSun className="size-5" aria-hidden="true" />
-      </span>
+      <img
+        src={officialLogoUrl}
+        alt="Mausam AI"
+        className="size-7 shrink-0 rounded-lg object-cover shadow-sm sm:size-8"
+      />
       <span className="flex min-w-0 items-baseline gap-1 whitespace-nowrap">
         Mausam AI
         <span className="text-xs font-normal text-muted-foreground sm:text-sm">Help</span>
