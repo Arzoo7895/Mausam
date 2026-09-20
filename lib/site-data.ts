@@ -120,7 +120,6 @@ export const stats: Stat[] = [
   { value: 4.2, suffix: 'B+', label: 'Weather updates processed' },
   { value: 12500, suffix: '+', label: 'Cities covered' },
   { value: 38, suffix: 'M+', label: 'AI recommendations generated' },
-  { value: 240, suffix: 'K+', label: 'Active users' },
 ]
 
 export type Comparison = {
@@ -154,58 +153,6 @@ export const comparisons: Comparison[] = [
     label: 'Intelligence',
     traditional: 'Static data pull',
     mausam: 'Adaptive AI that learns your patterns',
-  },
-]
-
-export type Testimonial = {
-  quote: string
-  name: string
-  role: string
-  initials: string
-}
-
-export const testimonials: Testimonial[] = [
-  {
-    quote:
-      'Mausam replaced three apps on my phone. The daily brief is the first thing I read every morning — it just tells me what matters.',
-    name: 'Ananya Rao',
-    role: 'Marathon runner, Bengaluru',
-    initials: 'AR',
-  },
-  {
-    quote:
-      'The severe-weather alerts gave us a two-hour head start before a cloudburst. That lead time is genuinely invaluable for our field teams.',
-    name: 'Vikram Nair',
-    role: 'Operations Lead, Logistics',
-    initials: 'VN',
-  },
-  {
-    quote:
-      'Finally a weather product that feels designed. The air-quality guidance changed how I plan my kids\u2019 outdoor time.',
-    name: 'Priya Menon',
-    role: 'Parent & teacher, Bengaluru',
-    initials: 'PM',
-  },
-  {
-    quote:
-      'As a farmer, the 7-day precipitation view is remarkably accurate. Mausam has become part of how I plan every week.',
-    name: 'Harjeet Singh',
-    role: 'Grower, Punjab',
-    initials: 'HS',
-  },
-  {
-    quote:
-      'The maps are buttery smooth and the whole thing loads instantly. It feels like a Linear or Stripe product, not a weather site.',
-    name: 'Dev Sharma',
-    role: 'Product Designer',
-    initials: 'DS',
-  },
-  {
-    quote:
-      'Multi-language briefs mean my parents finally use a weather app without asking me to translate. Small thing, huge impact.',
-    name: 'Sana Khan',
-    role: 'Software Engineer, Hyderabad',
-    initials: 'SK',
   },
 ]
 
