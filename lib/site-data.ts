@@ -148,7 +148,7 @@ export const comparisons: Comparison[] = [
   {
     label: 'Design',
     traditional: 'Cluttered, ad-heavy, dated',
-    mausam: 'Premium, fast, and distraction-free',
+    mausam: 'Fast, free, and distraction-free',
   },
   {
     label: 'Intelligence',
@@ -228,7 +228,7 @@ export const faqs: Faq[] = [
   {
     question: 'Is Mausam AI free to use?',
     answer:
-      'Core forecasts, air quality, UV, and the AI daily brief are free. Advanced features like unlimited saved locations, extended alerting, and API access are part of our Pro plans.',
+      'Mausam AI is completely free to use. All weather features, AI-powered insights, alerts, saved locations, air quality information, forecasts, and personalization features are available to everyone at no cost.',
   },
   {
     question: 'Does it work outside major cities?',

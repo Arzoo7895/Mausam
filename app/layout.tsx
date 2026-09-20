@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Mausam AI — AI-Powered Weather Intelligence',
     description:
-      'Real-time forecasts, AI daily briefs, air quality, and severe-weather alerts in one premium platform.',
+      'Real-time forecasts, AI daily briefs, air quality, and severe-weather alerts in one free platform.',
     type: 'website',
     siteName: 'Mausam AI',
   },
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Mausam AI — AI-Powered Weather Intelligence',
     description:
-      'Real-time forecasts, AI daily briefs, air quality, and severe-weather alerts in one premium platform.',
+      'Real-time forecasts, AI daily briefs, air quality, and severe-weather alerts in one free platform.',
   },
   generator: 'v0.app',
   icons: {
