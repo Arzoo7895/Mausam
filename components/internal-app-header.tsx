@@ -26,8 +26,8 @@ export function InternalAppHeader({
 }: InternalAppHeaderProps) {
   return (
     <header className={cn('border-b border-border/80 bg-background/95 backdrop-blur-md', className)}>
-      <div className="mx-auto flex min-h-16 w-full max-w-[1440px] items-center gap-3 px-3 py-3 sm:px-5 md:px-8">
-        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
+      <div className="mx-auto grid min-h-16 w-full max-w-[1440px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 py-3 sm:gap-4 sm:px-5 md:px-8">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-4">
           {onMenuClick && (
             <button type="button" onClick={onMenuClick} aria-label="Open menu" className="shrink-0 rounded-lg p-2 hover:bg-muted lg:hidden">
               <Menu aria-hidden="true" />

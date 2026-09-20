@@ -10,7 +10,7 @@ export function Logo({ className }: { className?: string }) {
         alt="Mausam AI"
         className="size-9 shrink-0 rounded-xl object-cover shadow-sm"
       />
-      <span className="text-lg font-semibold tracking-tight text-foreground">
+      <span className="whitespace-nowrap text-base font-semibold tracking-tight text-foreground sm:text-lg">
         Mausam<span className="text-primary"> AI</span>
       </span>
     </div>

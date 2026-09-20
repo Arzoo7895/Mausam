@@ -22,8 +22,8 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-1 px-2 sm:gap-4 sm:px-6">
-        <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-6">
-          <Logo className="shrink-0 text-sm sm:text-lg max-[359px]:[&>span]:hidden" />
+        <div className="flex min-w-0 items-center gap-1 sm:gap-6">
+          <Logo className="shrink-0 text-sm sm:text-lg" />
           <nav
             aria-label="Primary"
             className="hidden items-center gap-1 md:flex"
@@ -40,6 +40,9 @@ export function SiteHeader() {
           </nav>
         </div>
         <div className="flex shrink-0 items-center gap-0 sm:gap-1.5">
+          <LanguageSwitcher className="inline-flex [&>select]:w-[96px] [&>select]:truncate sm:[&>select]:w-auto" />
+          <SearchDialog />
+          <ThemeToggle />
           <button
             type="button"
             className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:hidden"
@@ -50,9 +53,6 @@ export function SiteHeader() {
           >
             {mobileNavOpen ? <X /> : <Menu />}
           </button>
-          <LanguageSwitcher className="inline-flex" />
-          <SearchDialog />
-          <ThemeToggle />
           <Link
             href="/dashboard"
             className="ml-1 hidden rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:inline-block"

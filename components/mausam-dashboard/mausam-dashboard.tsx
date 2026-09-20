@@ -195,9 +195,9 @@ export default function MausamDashboard() {
         <div className="mx-auto flex max-w-[1440px] items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4 sm:py-4 md:px-8">
           <Link href="/" aria-label="Mausam AI home" className="flex min-w-0 shrink items-center gap-2 sm:gap-3">
             <img src={officialLogoUrl} alt="Mausam AI" className="size-9 shrink-0 rounded-xl object-cover" />
-            <div className="min-w-0 max-[479px]:hidden"><p className="truncate font-semibold tracking-tight">Mausam <span className="text-primary">AI</span></p><p className="hidden text-[10px] font-medium uppercase tracking-[.18em] text-muted-foreground sm:block">Weather intelligence</p></div>
+            <div className="min-w-0"><p className="truncate text-sm font-semibold tracking-tight sm:text-base">Mausam <span className="text-primary">AI</span></p><p className="hidden text-[10px] font-medium uppercase tracking-[.18em] text-muted-foreground sm:block">Weather intelligence</p></div>
           </Link>
-          <div className="flex min-w-0 flex-wrap items-center justify-end gap-1 sm:gap-2">
+          <div className="ml-auto flex min-w-0 shrink items-center justify-end gap-0.5 sm:gap-2">
             {effectiveIsGuest && (
               <Link
                 href="/login"
