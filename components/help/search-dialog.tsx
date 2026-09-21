@@ -132,7 +132,7 @@ export function SearchDialog() {
               </button>
             </div>
 
-            <div id="search-results" className="max-h-[52vh] overflow-y-auto p-2">
+            <div id="search-results" className="max-h-[52vh] overflow-y-auto p-2 md:max-h-[70vh] md:min-h-0">
               {query && results.length === 0 && (
                 <p className="px-3 py-8 text-center text-sm text-muted-foreground">
                   {t('help.noResultsFor', { query })}
