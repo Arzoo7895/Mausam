@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ArrowLeft, Menu, UserRound } from 'lucide-react'
 import { officialLogoUrl } from '@/components/mausam/logo'
 import { LanguageSwitcher } from '@/components/language-switcher'
@@ -14,6 +15,7 @@ type InternalAppHeaderProps = {
   className?: string
   showProfile?: boolean
   onMenuClick?: () => void
+  useHistoryBack?: boolean
 }
 
 export function InternalAppHeader({
@@ -23,7 +25,14 @@ export function InternalAppHeader({
   className,
   showProfile = false,
   onMenuClick,
+  useHistoryBack = true,
 }: InternalAppHeaderProps) {
+  const router = useRouter()
+  const handleBack = () => {
+    if (useHistoryBack && typeof window !== 'undefined' && window.history.length > 1) router.back()
+    else if (backHref) router.push(backHref)
+  }
+
   return (
     <header className={cn('border-b border-border/80 bg-background/95 backdrop-blur-md', className)}>
       <div className="mx-auto grid min-h-16 w-full max-w-[1440px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 py-3 sm:gap-4 sm:px-5 md:px-8">
@@ -33,10 +42,10 @@ export function InternalAppHeader({
               <Menu aria-hidden="true" />
             </button>
           )}
-          {backHref && (
-            <Link href={backHref} aria-label={backLabel} className="shrink-0 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
+          {(backHref || useHistoryBack) && (
+            <button type="button" onClick={handleBack} aria-label={backLabel} className="shrink-0 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
               <ArrowLeft aria-hidden="true" size={18} />
-            </Link>
+            </button>
           )}
           <Link href="/" aria-label="Mausam AI home" className="flex min-w-0 shrink items-center gap-2">
             <img src={officialLogoUrl} alt="Mausam AI" className="size-9 shrink-0 rounded-xl object-cover" />

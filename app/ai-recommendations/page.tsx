@@ -32,6 +32,7 @@ import { LanguageSwitcher } from '@/components/language-switcher'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GuestAuthModal } from '@/components/guest-auth-modal'
 import { InternalAppHeader } from '@/components/internal-app-header'
+import { AppContainer } from '@/components/app-container'
 
 const icons = {
   academic: GraduationCap,
@@ -123,7 +124,7 @@ export default function AIRecommendationsPage() {
   return (
     <main className="min-h-screen bg-background pb-16 text-foreground">
       <InternalAppHeader backHref="/dashboard" backLabel="Back to dashboard" className="sticky top-0 z-20"><div><p className="text-xs uppercase tracking-[.2em] text-muted-foreground">{t('recommendations.intelligence')}</p><p className="font-semibold">{t('recommendations.title')}</p></div><button onClick={refresh} aria-label="Refresh recommendations" className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><RefreshCw size={18} /></button></InternalAppHeader>
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-8">
+      <AppContainer className="py-8">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -226,7 +227,7 @@ export default function AIRecommendationsPage() {
             </>
           )
         )}
-      </div>
+      </AppContainer>
     </main>
   )
 }
