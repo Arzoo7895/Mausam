@@ -105,7 +105,7 @@ export function SearchDialog() {
             role="dialog"
             aria-modal="true"
             aria-label={t('help.searchHelp')}
-            className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-popover shadow-2xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
+            className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-popover shadow-2xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 md:max-h-[calc(100vh-2rem)] md:overflow-y-auto"
           >
             <div className="flex items-center gap-3 border-b border-border px-4">
               <Search
@@ -132,7 +132,7 @@ export function SearchDialog() {
               </button>
             </div>
 
-            <div id="search-results" className="max-h-[52vh] overflow-y-auto p-2">
+            <div id="search-results" className="max-h-[52vh] overflow-y-auto p-2 md:max-h-none md:overflow-visible">
               {query && results.length === 0 && (
                 <p className="px-3 py-8 text-center text-sm text-muted-foreground">
                   {t('help.noResultsFor', { query })}

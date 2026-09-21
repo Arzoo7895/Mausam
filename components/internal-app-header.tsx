@@ -35,7 +35,7 @@ export function InternalAppHeader({
 
   return (
     <header className={cn('border-b border-border/80 bg-background/95 backdrop-blur-md', className)}>
-      <div className="mx-auto grid min-h-16 w-full max-w-[1440px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 py-3 sm:gap-4 sm:px-5 md:px-8">
+      <div className="mx-auto grid min-h-16 w-full max-w-[1440px] grid-cols-[minmax(0,1fr)_auto] items-center md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-2 px-3 py-3 sm:gap-4 sm:px-5 md:px-8">
         <div className="flex min-w-0 items-center gap-2 sm:gap-4">
           {onMenuClick && (
             <button type="button" onClick={onMenuClick} aria-label="Open menu" className="shrink-0 rounded-lg p-2 hover:bg-muted lg:hidden">
@@ -51,9 +51,9 @@ export function InternalAppHeader({
             <img src={officialLogoUrl} alt="Mausam AI" className="size-9 shrink-0 rounded-xl object-cover" />
             <span className="truncate text-base font-semibold tracking-tight sm:text-lg">Mausam <span className="text-primary">AI</span></span>
           </Link>
-          {children && <div className="hidden min-w-0 items-center gap-1 md:flex">{children}</div>}
         </div>
-        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+        {children && <div className="hidden min-w-0 items-center justify-center gap-1 md:flex">{children}</div>}
+        <div className="flex min-w-0 justify-end items-center gap-1 sm:gap-2">
           <LanguageSwitcher />
           <ThemeToggle />
           {showProfile && (
