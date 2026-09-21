@@ -137,7 +137,7 @@ export const articles: Article[] = [
       },
       {
         q: 'Is Mausam AI free?',
-        a: 'Core forecasts, maps, and the AI Daily Brief are free. Some advanced alerting and history features may require a plan.',
+        a: 'Mausam AI is completely free to use. All weather features, AI-powered insights, alerts, saved locations, maps, forecasts, and personalization features are available to everyone at no cost.',
       },
     ],
     related: ['create-your-account', 'reading-the-forecast', 'what-is-daily-brief'],

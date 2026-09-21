@@ -1,4 +1,5 @@
-import { Check, CloudSun, X } from 'lucide-react'
+import { Check, X } from 'lucide-react'
+import { officialLogoUrl } from '@/components/mausam/logo'
 import { Reveal, Stagger, StaggerItem } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
 import { comparisons } from '@/lib/site-data'
@@ -47,9 +48,7 @@ export function WhyChoose() {
           <Reveal delay={0.1}>
             <div className="relative h-full overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/[0.1] via-card to-card p-6 shadow-xl shadow-primary/10 sm:p-8">
               <div className="flex items-center gap-2">
-                <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                  <CloudSun className="size-5" />
-                </span>
+                <img src={officialLogoUrl} alt="Mausam AI" className="size-9 rounded-xl object-cover" />
                 <h3 className="text-base font-semibold">Mausam AI</h3>
                 <span className="ml-auto rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
                   Intelligent

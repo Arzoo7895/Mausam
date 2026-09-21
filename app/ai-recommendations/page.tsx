@@ -31,6 +31,8 @@ import { useI18n } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GuestAuthModal } from '@/components/guest-auth-modal'
+import { InternalAppHeader } from '@/components/internal-app-header'
+import { AppContainer } from '@/components/app-container'
 
 const icons = {
   academic: GraduationCap,
@@ -121,35 +123,8 @@ export default function AIRecommendationsPage() {
 
   return (
     <main className="min-h-screen bg-background pb-16 text-foreground">
-      <header className="sticky top-0 z-20 border-b border-border/70 bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-8">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/dashboard"
-              aria-label="Back to dashboard"
-              className="rounded-lg p-2 hover:bg-muted transition"
-            >
-              <ArrowLeft size={18} />
-            </Link>
-            <div>
-              <p className="text-xs uppercase tracking-[.2em] text-muted-foreground">{t('recommendations.intelligence')}</p>
-              <p className="font-semibold">{t('recommendations.title')}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher />
-            <ThemeToggle />
-            <button
-              onClick={refresh}
-              aria-label="Refresh recommendations"
-              className="rounded-lg p-2 text-muted-foreground hover:bg-muted transition"
-            >
-              <RefreshCw size={18} />
-            </button>
-          </div>
-        </div>
-      </header>
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-8">
+      <InternalAppHeader backHref="/dashboard" backLabel="Back to dashboard" className="sticky top-0 z-20"><div><p className="text-xs uppercase tracking-[.2em] text-muted-foreground">{t('recommendations.intelligence')}</p><p className="font-semibold">{t('recommendations.title')}</p></div><button onClick={refresh} aria-label="Refresh recommendations" className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><RefreshCw size={18} /></button></InternalAppHeader>
+      <AppContainer className="py-8">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -252,7 +227,7 @@ export default function AIRecommendationsPage() {
             </>
           )
         )}
-      </div>
+      </AppContainer>
     </main>
   )
 }

@@ -48,7 +48,7 @@ export function Stats() {
   return (
     <section className="px-4 py-8 sm:px-6 sm:py-12">
       <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/[0.08] via-card to-card p-6 sm:p-8 lg:p-14">
-        <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
           {stats.map((stat) => (
             <div key={stat.label} className="text-center lg:text-left">
               <p className="text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">

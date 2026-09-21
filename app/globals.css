@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../components/mobile-entry.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -165,11 +166,21 @@
 }
 
 @layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    overflow-x: hidden;
+  }
   body {
     @apply bg-background text-foreground;
+    min-width: 0;
+    overflow-x: hidden;
     font-feature-settings: 'ss01', 'cv01';
   }
   ::selection {

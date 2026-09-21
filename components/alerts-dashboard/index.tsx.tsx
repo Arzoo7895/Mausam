@@ -32,6 +32,7 @@ import {
 import { useProfile } from '@/lib/profile-context'
 import { useI18n } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { officialLogoUrl } from '@/components/mausam/logo'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GuestAuthModal } from '@/components/guest-auth-modal'
 import { useActiveLocation } from '@/lib/location-context'
@@ -309,8 +310,8 @@ export function AlertsDashboard({
   return (
     <main className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-card/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-4 lg:px-10">
-          <div className="flex items-center gap-4">
+          <div className="mx-auto flex max-w-[1440px] flex-col gap-3 px-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-10">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
             <Link
               href="/dashboard"
               aria-label="Back to dashboard"
@@ -318,13 +319,24 @@ export function AlertsDashboard({
             >
               <ArrowLeft size={18} />
             </Link>
-            <div>
+          <div className="flex min-w-0 items-center gap-3">
+            <img src={officialLogoUrl} alt="Mausam AI" className="size-9 shrink-0 rounded-xl object-cover" />
+            <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Mausam AI</p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight">{t('alerts.title')}</h1>
+              <h1 className="mt-1 break-words text-2xl font-semibold tracking-tight">{t('alerts.title')}</h1>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
+          </div>
+          <div className="flex w-full flex-wrap items-center justify-end gap-1.5 sm:w-auto sm:gap-3">
+            <LanguageSwitcher className="shrink-0" />
+            <button
+              type="button"
+              onClick={openSettings}
+              aria-label="Open notifications"
+              className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-foreground transition hover:bg-muted"
+            >
+              <Bell size={16} />
+            </button>
             <ThemeToggle />
             <button
               onClick={() => {
@@ -334,9 +346,10 @@ export function AlertsDashboard({
                   openSettings()
                 }
               }}
-              className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
+              aria-label={t('alerts.settingsBtn')}
+              className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-sm font-medium text-foreground transition hover:bg-muted sm:h-auto sm:w-auto sm:gap-2 sm:px-3 sm:py-2"
             >
-              <Settings2 size={16} /> {t('alerts.settingsBtn')}
+              <Settings2 size={16} /> <span className="hidden sm:inline">{t('alerts.settingsBtn')}</span>
             </button>
             <button
               onClick={() => {
@@ -363,7 +376,7 @@ export function AlertsDashboard({
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1440px] px-6 py-8 lg:px-10">
+      <div className="mx-auto max-w-[1440px] px-3 py-6 sm:px-6 sm:py-8 lg:px-10">
         <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <p className="text-sm text-muted-foreground">{t('alerts.subtitle')}</p>
@@ -504,7 +517,7 @@ export function AlertsDashboard({
           )}
         </div>
 
-        <section className="mt-8 rounded-xl border border-border bg-card p-6 shadow-sm">
+        <section className="mt-8 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-orange-600">
@@ -609,7 +622,7 @@ function AlertCard({
           <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
             <MapPin size={14} className="text-muted-foreground" /> {alert.location}
           </p>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{alert.detail}</p>
+          <p className="mt-2 max-w-3xl break-words text-sm leading-6 text-muted-foreground">{alert.detail}</p>
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
             <span>{alert.relativeTime}</span>
             {alert.expiresAt && <span>Expires {alert.expiresAt}</span>}
@@ -647,7 +660,7 @@ function DetailPanel({ alert, onClose }: { alert: WeatherAlert; onClose: () => v
     >
       <aside
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-card border border-border p-6 shadow-2xl sm:rounded-2xl"
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-border bg-card p-4 shadow-2xl sm:rounded-2xl sm:p-6"
       >
         <div className="flex items-start justify-between">
           <div>
@@ -709,7 +722,7 @@ function SettingsPanel({
     <div className="fixed inset-0 z-20 flex justify-end bg-black/50 backdrop-blur-[2px]" onClick={onClose}>
       <aside
         onClick={(e) => e.stopPropagation()}
-        className="h-full w-full max-w-md overflow-y-auto bg-card border-l border-border p-6 shadow-2xl"
+        className="h-full w-full max-w-md overflow-y-auto border-l border-border bg-card p-4 shadow-2xl sm:p-6"
       >
         <div className="flex items-center justify-between">
           <div>
